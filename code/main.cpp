@@ -1,42 +1,52 @@
 #include <iostream>
 #include <fstream>
+#include <armadillo>
 #include "solver.h"
-
 using namespace std;
-//using namespace arma;
+using namespace arma;
+
+
+double f(double x){
+	return -x;
+}
+
 
 int main(int argc, char* argv[])
 {
+	double x;
 
 	int N = atoi(argv[1]);
-	double dx = 1./(N+1); // L = 1
+	double Time = atof(argv[2]);
+
+	double dx = 1./(N); // L = 1
 	double dt = 0.5*dx*dx; // Stability condition for Forward Euler, Explicit
 	double alpha = 0.5; // dt/(dx*dx)
+	int timesteps = int(Time/dt) + 1;
 
 	Solver solver; // Initializes Solver class
 
-	// Initial conditions
-	double *v = new double [N];
-	for (int i = 0; i < N; i++){
-		v[i] = -i*dx; // Add f(x)
-		//cout << v[i] << endl;
+	// Intialize solution vectors
+	vec v = zeros<vec>(N+1);
+	vec v_new = zeros<vec> (N+1);
+
+
+	// Initial and bounadry conditions
+	v[0] = 0; v[N] = 0;
+	for (int i = 1; i < N; i++){
+		x = i*dx;
+		v[i] = f(x); // Add f(x)
 	}
-	double *u = new double [N];
-	u = v;
 
-	ofstream ofile;
-	ofile.open("main.txt");
 
-	for (int timestep = 0; timestep < N; timestep++){
-		solver.Explicit(N, v, alpha); // Double loop
+	string outfile = "main.txt";
+	solver.WriteToFile(outfile, 0, v, N, Time, dt, dx, f);
+	for (int t = 1; t <= timesteps; t++){
+		solver.Explicit(N, v, v_new, alpha); // Double loop
+		solver.WriteToFile(outfile, t, v, N, Time, dt, dx, f);
+
 		//solver.Implicit(N, u, alpha); // Tridiagonal, doesn't work properly yet, memory issues with small N, returns -nan for big N
-		
 		//solver.Crank_Nicolson(N, v, alpha); // Tridiagonal
-		//solver.WriteToFile();
-		ofile << v[timestep] + timestep*dx << endl; // u = v - f(x)
+		// ofile << v[timestep] + timestep*dx << endl; // u = v - f(x)
+
 	}
-
-	delete[] u,v;
-
-
 }

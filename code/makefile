@@ -1,7 +1,7 @@
 # Unfinished, copied from project 4
 
 CPPflags = c++ -O3 -std=c++11
-#LIB =  -larmadillo #-llapack -lblas
+LIB =  -larmadillo #-llapack -lblas
 PROG = main
 
 ${PROG}: 						${PROG}.o solver.o
@@ -17,4 +17,3 @@ solver.o: 				solver.cpp solver.h
 
 clean:
 	rm -f *.o *~
-
