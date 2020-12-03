@@ -28,12 +28,12 @@ int main(int argc, char* argv[])
 
 	// Intialize solution vectors
 	vec v = zeros<vec>(N+2);
-	vec v_new = zeros<vec> (N+2);
+	vec v_new = zeros<vec>(N+2);
 
 
 	// Initial and bounadry conditions
 	v[0] = 0; v[N+1] = 0;
-	for (int i = 1; i <= N; i++){
+	for (int i = 1; i < N+1; i++){
 		x = i*dx;
 		v[i] = f(x); // Add f(x)
 	}
@@ -43,8 +43,8 @@ int main(int argc, char* argv[])
 	solver.WriteToFile(outfile, 0, v, N, Time, dt, dx, f);
 	for (int t = 1; t <= timesteps; t++){
 		//solver.Explicit(N, v, v_new, alpha); // Double loop
-		solver.Implicit(N, v, v_new, alpha); // Tridiagonal
-		//solver.Crank_Nicolson(N, v, alpha); // Tridiagonal
+		//solver.Implicit(N, v, v_new, alpha); // Tridiagonal
+		solver.Crank_Nicolson(N, v, v_new, alpha); // Tridiagonal
 
 		solver.WriteToFile(outfile, t, v, N, Time, dt, dx, f);
 
