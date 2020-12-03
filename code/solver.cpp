@@ -25,7 +25,7 @@ void Solver::Backward_Sub(int N, double *b, double *c, double *g, double *v){
 
 void Solver::Explicit(int N, vec &v, vec &v_new, double alpha){
 
-		for (int i = 1; i < N; i++){
+		for (int i = 1; i <= N; i++){
 			v_new[i] = alpha*v[i-1] + (1-2*alpha)*v[i]+alpha*v[i+1];
 		}
 		v = v_new;
@@ -139,7 +139,7 @@ void Solver::WriteToFile(string outfile, int t, vec &v, int N, double Time, doub
 
 	vec u;
 	ofile << "t=" << t*dt << endl;
-	for (int i = 0; i <= N; i++){
+	for (int i = 0; i <= N+1; i++){
 		u[i] = v[i] - func(i*dx);
 		ofile << setw(15) << setprecision(8) << u[i] << endl;
 	}
