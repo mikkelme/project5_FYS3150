@@ -17,7 +17,8 @@ public:
   void Explicit(int N, vec &v, vec &v_new, double alpha);
   void Implicit(int N, vec &v, vec &v_new, double alpha);
   void Crank_Nicolson(int N, vec &v, vec &v_old, double alpha);
-  void WriteToFile(string outfile, int t, vec &v, int N, double Time, double dt, double dx, double func (double));
+  void twoD_Explicit(int N, mat &V, mat &V_new, double alpha);
+  void WriteToFile(string outfile, int t, vec &v, mat &V, int N, double Time, double dt, double dx, double func (double), int dim);
 
 
 private:

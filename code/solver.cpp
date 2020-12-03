@@ -78,7 +78,20 @@ void Solver::Crank_Nicolson(int N, vec &v, vec &v_old, double alpha){
 }
 
 
-void Solver::WriteToFile(string outfile, int t, vec &v, int N, double Time, double dt, double dx, double func (double)){
+void Solver::twoD_Explicit(int N, mat &V, mat &V_new, double alpha){
+	
+	for (int i = 1; i < N+1; i++){
+		for (int j = 1; j < N+1; i++){
+			V_new[i,j] = V[i,j] + alpha*(V[i+1,j] + V[i-1,j] + V[i,j+1] + V[i,j-1] - 4*V[i,j]); 
+			//cout << V_new[i,j] << " " << j << endl;
+			// infinite (?) loop here for some reason
+		}
+	}
+	V = V_new;
+}
+
+
+void Solver::WriteToFile(string outfile, int t, vec &v, mat &V, int N, double Time, double dt, double dx, double func (double), int dim){
 	ofstream ofile;
 
 	if (t == 0){
@@ -92,10 +105,24 @@ void Solver::WriteToFile(string outfile, int t, vec &v, int N, double Time, doub
 		ofile.open(outfile, ios::out | ios::app);
 	}
 
+	if (dim == 1){
 	vec u = zeros<vec>(N+2);
 	ofile << "t=" << t*dt << endl;
-	for (int i = 0; i <= N+1; i++){
+	for (int i = 0; i < N+2; i++){
 		u[i] = v[i] - func(i*dx);
 		ofile << setw(15) << setprecision(8) << u[i] << endl;
 	}
+	}
+
+	if (dim == 2){
+	mat U = zeros<mat>(N+2,N+2);
+	ofile << "t=" << t*dt << endl;
+	for (int i = 1; i < N+2; i++){
+		for (int j = 1; j < N+2; j++){
+			U[i,j] = V[i,j] - func(i*dx);
+			ofile << setw(15) << setprecision(6) << U[i,j] << endl;
+		}
+	}
+	}
+	ofile.close();
 }
