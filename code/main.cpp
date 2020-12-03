@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <armadillo>
+#include <string>
 #include "solver.h"
 using namespace std;
 using namespace arma;
@@ -37,7 +38,7 @@ int main(int argc, char* argv[])
 		v[i] = f(x); // Add f(x)
 	}
 
-
+	
 	string outfile = "main.txt";
 	solver.WriteToFile(outfile, 0, v, N, Time, dt, dx, f);
 	for (int t = 1; t <= timesteps; t++){

@@ -1,6 +1,7 @@
 #include "solver.h"
 #include <string>
 #include <iostream>
+#include <iomanip>
 
 using namespace std;
 
@@ -137,7 +138,7 @@ void Solver::WriteToFile(string outfile, int t, vec &v, int N, double Time, doub
 		ofile.open(outfile, ios::out | ios::app);
 	}
 
-	vec u;
+	vec u = zeros<vec>(N+2);
 	ofile << "t=" << t*dt << endl;
 	for (int i = 0; i <= N+1; i++){
 		u[i] = v[i] - func(i*dx);
