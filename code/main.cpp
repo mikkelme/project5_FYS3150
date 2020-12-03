@@ -42,12 +42,11 @@ int main(int argc, char* argv[])
 	string outfile = "main.txt";
 	solver.WriteToFile(outfile, 0, v, N, Time, dt, dx, f);
 	for (int t = 1; t <= timesteps; t++){
-		solver.Explicit(N, v, v_new, alpha); // Double loop
-		solver.WriteToFile(outfile, t, v, N, Time, dt, dx, f);
-
-		//solver.Implicit(N, u, alpha); // Tridiagonal, doesn't work properly yet, memory issues with small N, returns -nan for big N
+		//solver.Explicit(N, v, v_new, alpha); // Double loop
+		solver.Implicit(N, v, v_new, alpha); // Tridiagonal
 		//solver.Crank_Nicolson(N, v, alpha); // Tridiagonal
-		// ofile << v[timestep] + timestep*dx << endl; // u = v - f(x)
+
+		solver.WriteToFile(outfile, t, v, N, Time, dt, dx, f);
 
 	}
 }
