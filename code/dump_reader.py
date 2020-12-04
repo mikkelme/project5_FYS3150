@@ -37,12 +37,12 @@ def read_dump(filename):
 		return x, t, u
 
 
-def TwoDimPlot(x,t,u):
-	X,T = np.meshgrid(x,t)
-	plt.pcolormesh(X,T,u)
+def TwoDimPlot(x,y,z):
+	X,Y = np.meshgrid(x,y)
+	plt.pcolormesh(X,Y,z)
 	plt.colorbar()
 	plt.xlabel("x", fontsize=14)
-	plt.ylabel("time", fontsize=14)
+	plt.ylabel("y", fontsize=14)
 	plt.show()
 
 
