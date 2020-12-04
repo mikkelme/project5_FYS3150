@@ -6,125 +6,92 @@
 using namespace std;
 
 
-
-void Solver::Forward_Sub(int N, double *a, double *b, double *c, double *g){
+void Solver::Forward_Sub(int N, vec &a, vec &b, vec &c, vec &g){
 	double k; // Reducing no. FLOPs
-	for (int i = 1; i < N; i++){
+	for (int i = 1; i < N+1; i++){
 		k = a[i]/b[i-1];
 		b[i] = b[i] - k*c[i-1];
 		g[i] = g[i] - k*g[i-1];
 	}
 }
 
-void Solver::Backward_Sub(int N, double *b, double *c, double *g, double *v){
+void Solver::Backward_Sub(int N, vec &b, vec &c, vec &g, vec &v){
 	//v[0] = v[N+1] = 0;
-	v[N] = g[N]/b[N];
-	for (int i = N-1; i > 0; i--){
+	v[N+1] = g[N+1]/b[N+1];
+	for (int i = N+1; i > 0; i--){
 		v[i] = (g[i] - c[i]*v[i+1])/b[i];
 	}
 }
 
 void Solver::Explicit(int N, vec &v, vec &v_new, double alpha){
 
-		for (int i = 1; i <= N; i++){
+		for (int i = 1; i < N+1; i++){
 			v_new[i] = alpha*v[i-1] + (1-2*alpha)*v[i]+alpha*v[i+1];
 		}
 		v = v_new;
 
-	/*
-	double *v_new = new double[N];
-	double *v_old; // Need of temporary memory so the memory doesnt overwrite
-
-
-	for (int t = 0; t < N; t++){
-		for (int i = 1; i < N; i++){
-			v_new[i] = alpha*v[i-1] + (1-2*alpha)*v[i]+alpha*v[i+1];
-		}
-
-		v_old = v_new;
-		v_new = v;
-		v = v_old;
-	}
-
-	delete[] v_new;
-	*/
 
 }
 
 
-void Solver::Implicit(int N, double *v, double alpha){
+void Solver::Implicit(int N, vec &v, vec &v_new, double alpha){
+	
+	vec a = zeros<vec>(N+2);
+	vec b = zeros<vec>(N+2);
+	vec c = zeros<vec>(N+2);
 
-	double *a = new double [N];
-	double *b = new double [N];
-	double *c = new double [N];
-
-	double *v_new = new double[N];
-	double *v_old;
-
-	for (int t = 0; t < N; t++){
-		for (int i = 1; i < N; i++){
-			a[i] = c[i] = -alpha;
-			b[i] = 1+2*alpha;
-		}
-		Forward_Sub(N, a, b, c, v);
-		Backward_Sub(N, b, c, v, v_new);
-
-		// Keep boundary
-		a[0] = c[0] = 0;
-		b[0] = 1;
-		a[N] = c[N] = 0;
-		b[N] = 1;
-
-		v_old = v_new;
-		v_new = v;
-		v = v_old;
+	a[0] = c[0] = -alpha; b[0] = 1+2*alpha; 
+	for (int i = 1; i < N+1; i++){
+		a[i] = c[i] = -alpha;
+		b[i] = 1+2*alpha;
 	}
+	a[N+1] = c[N+1] = -alpha; b[N+1] = 1+2*alpha;
 
+	Forward_Sub(N, a, b, c, v);
+	Backward_Sub(N, b, c, v, v_new);
 
-	// delete[] a, b, c, v_old;
+	v = v_new;
 
 }
 
-void Solver::Crank_Nicolson(int N, double *v, double alpha){
 
-	double *a = new double [N];
-	double *b = new double [N];
-	double *c = new double [N];
+void Solver::Crank_Nicolson(int N, vec &v, vec &v_old, double alpha){
 
-	double *v_new = new double[N];
-	double *v_old = new double[N];
+	vec a = zeros<vec>(N+2);
+	vec b = zeros<vec>(N+2);
+	vec c = zeros<vec>(N+2);
 
-	for (int t = 0; t < N; t++){
-		for (int i = 1; i < N-1; i++){
-			v_old[i] = alpha*v[i-1] + (2-2*alpha)*v[i]+alpha*v[i+1];
+	a[0] = c[0] = -alpha; b[0] = 2+2*alpha;
+	for (int i = 1; i < N+1; i++){
+		a[i] = c[i] = -alpha;
+		b[i] = 2+2*alpha;
+	}
+	a[N+1] = c[N+1] = -alpha; b[N+1] = 2+2*alpha;
 
-		}
-
-
-		for (int i = 0; i < N; i++){
-			a[i] = c[i] = -alpha;
-			b[i] = 2+2*alpha;
-		}
-		Forward_Sub(N, a, b, c, v_old);
-		Backward_Sub(N, b, c, v_old, v);
-
-		// Keep boundary
-		a[0] = c[0] = 0;
-		b[0] = 1;
-		a[N] = c[N] = 0;
-		b[N] = 1;
-
-		v_new = v_old;
-		v_old = v;
-		v = v_new;
+	for (int i = 1; i < N+1; i++){
+		v_old[i] = alpha*v[i-1] + (2-2*alpha)*v[i]+alpha*v[i+1];
 	}
 
 
-	//delete[] a, b, c, v_new;
-
+	Forward_Sub(N, a, b, c, v_old);
+	Backward_Sub(N, b, c, v_old, v);
 }
 
-void Solver::WriteToFile(string outfile, int t, vec &v, int N, double Time, double dt, double dx, double func (double)){
+
+void Solver::twoD_Explicit(int N, mat &V, mat &V_new, double alpha){
+	
+	for (int i = 1; i < N+1; i++){
+		for (int j = 1; j < N+1; i++){
+			V_new[i,j] = V[i,j] + alpha*(V[i+1,j] + V[i-1,j] + V[i,j+1] + V[i,j-1] - 4*V[i,j]); 
+			//cout << V_new[i,j] << " " << j << endl;
+			// infinite (?) loop here for some reason
+		}
+	}
+	V = V_new;
+}
+
+
+void Solver::WriteToFile(string outfile, int t, vec &v, mat &V, int N, double Time, double dt, double dx, double func (double), int dim){
 	ofstream ofile;
 
 	if (t == 0){
@@ -138,18 +105,24 @@ void Solver::WriteToFile(string outfile, int t, vec &v, int N, double Time, doub
 		ofile.open(outfile, ios::out | ios::app);
 	}
 
+	if (dim == 1){
 	vec u = zeros<vec>(N+2);
 	ofile << "t=" << t*dt << endl;
-	for (int i = 0; i <= N+1; i++){
+	for (int i = 0; i < N+2; i++){
 		u[i] = v[i] - func(i*dx);
 		ofile << setw(15) << setprecision(8) << u[i] << endl;
 	}
+	}
+
+	if (dim == 2){
+	mat U = zeros<mat>(N+2,N+2);
+	ofile << "t=" << t*dt << endl;
+	for (int i = 1; i < N+2; i++){
+		for (int j = 1; j < N+2; j++){
+			U[i,j] = V[i,j] - func(i*dx);
+			ofile << setw(15) << setprecision(6) << U[i,j] << endl;
+		}
+	}
+	}
+	ofile.close();
 }
-
-
-
-
-
-
-
-//

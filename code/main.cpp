@@ -28,26 +28,33 @@ int main(int argc, char* argv[])
 
 	// Intialize solution vectors
 	vec v = zeros<vec>(N+2);
-	vec v_new = zeros<vec> (N+2);
+	vec v_new = zeros<vec>(N+2);
 
 
-	// Initial and bounadry conditions
+	// 1D Initial and bounadry conditions
 	v[0] = 0; v[N+1] = 0;
-	for (int i = 1; i <= N; i++){
+	for (int i = 1; i < N+1; i++){
 		x = i*dx;
 		v[i] = f(x); // Add f(x)
 	}
 
+	// 2D matrix, used same IC because idk what they are
+	mat V = zeros<mat>(N+2,N+2);
+	mat V_new = zeros<mat>(N+2,N+2);
+	for (int i = 1; i < N; i++){
+		x = i*dx; // dx = dy = h
+		V[i,i] = f(x); 
+	}
+
 	
 	string outfile = "main.txt";
-	solver.WriteToFile(outfile, 0, v, N, Time, dt, dx, f);
+	solver.WriteToFile(outfile, 0, v, V, N, Time, dt, dx, f, 2);
 	for (int t = 1; t <= timesteps; t++){
-		solver.Explicit(N, v, v_new, alpha); // Double loop
-		solver.WriteToFile(outfile, t, v, N, Time, dt, dx, f);
-
-		//solver.Implicit(N, u, alpha); // Tridiagonal, doesn't work properly yet, memory issues with small N, returns -nan for big N
-		//solver.Crank_Nicolson(N, v, alpha); // Tridiagonal
-		// ofile << v[timestep] + timestep*dx << endl; // u = v - f(x)
+		//solver.Explicit(N, v, v_new, alpha); // Double loop
+		//solver.Implicit(N, v, v_new, alpha); // Tridiagonal
+		//solver.Crank_Nicolson(N, v, v_new, alpha); // Tridiagonal
+		solver.twoD_Explicit(N, V, V_new, alpha); // Triple loop
+		solver.WriteToFile(outfile, t, v, V, N, Time, dt, dx, f, 2);
 
 	}
 }
