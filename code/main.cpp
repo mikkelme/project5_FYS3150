@@ -47,15 +47,15 @@ int main(int argc, char* argv[])
 		}
 
 		// Open output file
-		string method_name = "CN";
+		string method_name = "Explicit";
 		string outfile = to_string(dim) + "D" + method_name + argv[1] + ".txt";
 		solver.WriteToFile1D(outfile, 0, v, N, Time, dt, dx, f, L);
 
 		// Main calculation loop
 		for (int t = 1; t <= timesteps; t++){
-			// solver.Explicit(N, v, v_new, alpha); 					// Double loop
+			solver.Explicit(N, v, v_new, alpha); 					// Double loop
 			// solver.Implicit(N, v, v_new, alpha); 				// Tridiagonal
-			solver.Crank_Nicolson(N, v, v_new, alpha); 	// Tridiagonal
+			// solver.Crank_Nicolson(N, v, v_new, alpha); 	// Tridiagonal
 			solver.WriteToFile1D(outfile, t, v, N, Time, dt, dx, f, L);
 		}
 	}

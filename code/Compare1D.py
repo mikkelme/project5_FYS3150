@@ -60,36 +60,101 @@ def Animation_compare(x,t, u_num, u_ana):
 
 
 def Error_compare(filenames):
-    #Keep dx equal for comparing i gueess...
-
     t1 = 0.1
     t2 = 0.2
 
     U01 = []    #dx = 0.1
+    method01 = [] #order of method
     U001 = []   #dx = 0.01
+    method001 = [] #order of method
     for filename in filenames:
         x, t, u, dx, dt, Time, N = read_dump(filename)
         if dx == 0.1:
+            x01 = x
+            t01 = t
             U01.append(u)
+            method01.append(filename.split("D")[1].split("0")[0])
         elif dx == 0.01:
-            U01.append(u)
+            x001 = x
+            t001 = t
+            U001.append(u)
+            method001.append(filename.split("D")[1].split("0")[0])
 
 
     U01 = np.array(U01) #Shape = method, t, x
     U001 = np.array(U001) #Shape = method, t, x
-    u_ana = OneDim_analytic(x,t,L=1)
-
     t1_idx = np.argmin(np.abs(t - t1))
     t2_idx = np.argmin(np.abs(t - t2))
 
-    fig = plt.figure(num=0, dpi=80, facecolor='w', edgecolor='k')
 
-    
-    plt.subplots(211)
-        for i in range():
+    fig0 = plt.figure(num=0, dpi=80, facecolor='w', edgecolor='k')
+    plt.subplots_adjust(hspace=0.35)
 
-    plt.subplots(212)
+    plt.subplot(211)
+    plt.title("dx = 0.1")
+    linestyle = "-"
+    marker = "o"
+    markersize = 5
+    t1_idx = np.argmin(np.abs(t01 - t1))
+    t2_idx = np.argmin(np.abs(t01 - t2))
+    for i in range(len(U01)):
+        plott1 = plt.plot(x01, U01[i,t1_idx], linestyle = linestyle, marker = marker, markersize = markersize, label = method01[i])
+        plt.plot(x01, U01[i,t2_idx], linestyle = linestyle, marker = marker, markersize = markersize, color = plott1[0].get_color())
+    plt.ylabel("$u$",fontsize = 14)
 
+    plt.subplot(212)
+    plt.title("dx = 0.01")
+    linestyle = "-"
+    marker = None
+    markersize = 5
+    t1_idx = np.argmin(np.abs(t001 - t1))
+    t_2idx = np.argmin(np.abs(t001 - t2))
+    for i in range(len(U001)):
+        plott1 = plt.plot(x001, U001[i,t1_idx], linestyle = linestyle, marker = marker, markersize = markersize, label = method001[i])
+        plt.plot(x001, U001[i,t_2idx], linestyle = linestyle, marker = marker, markersize = markersize, color = plott1[0].get_color())
+        plt.legend(loc = "best", fontsize = 13)
+    plt.ylabel("$u$", fontsize = 14)
+    plt.xlabel("x", fontsize = 14)
+    plt.tight_layout(pad=1.1, w_pad=0.7, h_pad=0.2)
+
+
+    fig1 = plt.figure(num=1, dpi=80, facecolor='w', edgecolor='k')
+    plt.subplots_adjust(hspace=0.35)
+
+    plt.subplot(211)
+    plt.title("dx = 0.1")
+    linestyle = "-"
+    marker = "o"
+    markersize = 5
+
+    t1_idx = np.argmin(np.abs(t01 - t1))
+    t2_idx = np.argmin(np.abs(t01 - t2))
+    u_ana01 = OneDim_analytic(x01,[t01[t1_idx],t01[t2_idx]],L=1)
+    for i in range(len(U01)):
+        plott1 = plt.plot(x01, np.abs(U01[i,t1_idx]-u_ana01[0]), linestyle = linestyle, marker = marker, markersize = markersize, label = method01[i] + " t1")
+        plt.plot(x01, np.abs(U01[i,t2_idx]-u_ana01[1]), linestyle = linestyle, marker = marker, markersize = markersize, label = method01[i] + " t2")
+    plt.ylabel("Absolute error",fontsize = 14)
+
+    plt.subplot(212)
+    plt.title("dx = 0.01")
+    linestyle = "-"
+    marker = None
+    markersize = 5
+
+    t1_idx = np.argmin(np.abs(t001 - t1))
+    t2_idx = np.argmin(np.abs(t001 - t2))
+    u_ana001 = OneDim_analytic(x001,[t001[t1_idx],t001[t2_idx]],L=1)
+    for i in range(len(U001)):
+        plott1 = plt.plot(x001, np.abs(U001[i,t1_idx]-u_ana001[0]), linestyle = linestyle, marker = marker, markersize = markersize, label = method001[i] + " t2")
+        plt.plot(x001, np.abs(U001[i,t2_idx]-u_ana001[1]), linestyle = linestyle, marker = marker, markersize = markersize, label = method001[i] + " t2")
+        plt.legend(loc = "best", fontsize = 13)
+    plt.ylabel("Absolute error",fontsize = 14)
+    plt.xlabel("x",fontsize = 14)
+    plt.tight_layout(pad=1.1, w_pad=0.7, h_pad=0.2)
+
+
+    fig0.savefig("/../article/figures/compare_show.pdf", bbox_inches="tight")
+    plt.show()
 
 
 
@@ -102,7 +167,10 @@ def Error_compare(filenames):
 
 
 if __name__ == "__main__":
-    filenames = ["1DExplicit0.1.txt", "1DImplicit0.1.txt", "1DCN0.1.txt"]
+    # filenames = ["1DExplicit0.1.txt", "1DImplicit0.1.txt", "1DCN0.1.txt"]
+    filenames = ["1DExplicit0.1.txt", "1DImplicit0.1.txt", "1DCN0.1.txt", \
+                "1DExplicit0.01.txt", "1DImplicit0.01.txt", "1DCN0.01.txt"]
+
     Error_compare(filenames)
 
 
