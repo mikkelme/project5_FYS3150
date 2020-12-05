@@ -34,9 +34,8 @@ def read_dump(filename):
 		x = np.linspace(0,u_line[-1], N+2)
 		t = np.array(t)
 		u = np.array(u)
-		print(u[0])
 
-		return x, t, u
+		return x, t, u, dx, dt, Time, N
 
 def read_dump2(filename):
 	with open(filename, "r") as infile:
@@ -55,16 +54,16 @@ def read_dump2(filename):
 
 					u_line[i,j] = float(infile.readline())
 					#print(u_line[i,j], i, j)
-			
+
 			ux.append(u_line[:,i])
 			uy.append(u_line[i,:])
-		
+
 
 		x = np.linspace(0,u_line[-1], N+2)
 		t = np.array(t)
 		ux = np.array(ux)
 		uy = np.array(uy)
-	
+
 
 		return x, t, ux, uy
 
@@ -109,16 +108,10 @@ def ThreeDimPlot(x,t,ux,uy):
 
 if __name__ == "__main__":
 	filename = "main.txt"
-	x, t, u = read_dump(filename)
+	x, t, u, dx, dt, Time, N= read_dump(filename)
 	x = np.linspace(0,1,144)
 	y = np.linspace(0,1,26)
 	print(np.shape(u))
 	TwoDimPlot(x,y,u)
 	#x, t, ux, uy = read_dump2(filename)
 	#ThreeDimPlot(x,t,ux,uy)
-
-
-
-
-
-
