@@ -35,12 +35,12 @@ void Solver::Explicit(int N, vec &v, vec &v_new, double alpha){
 
 
 void Solver::Implicit(int N, vec &v, vec &v_new, double alpha){
-	
+
 	vec a = zeros<vec>(N+2);
 	vec b = zeros<vec>(N+2);
 	vec c = zeros<vec>(N+2);
 
-	a[0] = c[0] = -alpha; b[0] = 1+2*alpha; 
+	a[0] = c[0] = -alpha; b[0] = 1+2*alpha;
 	for (int i = 1; i < N+1; i++){
 		a[i] = c[i] = -alpha;
 		b[i] = 1+2*alpha;
@@ -79,19 +79,17 @@ void Solver::Crank_Nicolson(int N, vec &v, vec &v_old, double alpha){
 
 
 void Solver::twoD_Explicit(int N, mat &V, mat &V_new, double alpha){
-	
+
 	for (int i = 1; i < N+1; i++){
-		for (int j = 1; j < N+1; i++){
-			V_new[i,j] = V[i,j] + alpha*(V[i+1,j] + V[i-1,j] + V[i,j+1] + V[i,j-1] - 4*V[i,j]); 
-			//cout << V_new[i,j] << " " << j << endl;
-			// infinite (?) loop here for some reason
+		for (int j = 1; j < N+1; j++){
+			V_new[i,j] = V[i,j] + alpha*(V[i+1,j] + V[i-1,j] + V[i,j+1] + V[i,j-1] - 4*V[i,j]);
 		}
 	}
 	V = V_new;
 }
 
 
-void Solver::WriteToFile(string outfile, int t, vec &v, mat &V, int N, double Time, double dt, double dx, double func (double), int dim){
+void Solver::WriteToFile1D(string outfile, int t, vec &v, int N, double Time, double dt, double dx, double func (double, double), double L){
 	ofstream ofile;
 
 	if (t == 0){
@@ -105,24 +103,41 @@ void Solver::WriteToFile(string outfile, int t, vec &v, mat &V, int N, double Ti
 		ofile.open(outfile, ios::out | ios::app);
 	}
 
-	if (dim == 1){
 	vec u = zeros<vec>(N+2);
 	ofile << "t=" << t*dt << endl;
 	for (int i = 0; i < N+2; i++){
-		u[i] = v[i] - func(i*dx);
+		u[i] = v[i] - func(i*dx, L);
 		ofile << setw(15) << setprecision(8) << u[i] << endl;
 	}
+
+
+
+	ofile.close();
+}
+
+
+
+void Solver::WriteToFile2D(string outfile, int t, mat &V, int N, double Time, double dt, double dx){
+	ofstream ofile;
+
+	if (t == 0){
+		ofile.open(outfile, ios::out);
+		ofile << "N=" << N << endl;
+		ofile << "Time=" << Time << endl;
+		ofile << "dx=" << dx << endl;
+		ofile << "dt=" << dt << endl;
+	}
+	else {
+		ofile.open(outfile, ios::out | ios::app);
 	}
 
-	if (dim == 2){
 	mat U = zeros<mat>(N+2,N+2);
 	ofile << "t=" << t*dt << endl;
-	for (int i = 1; i < N+2; i++){
-		for (int j = 1; j < N+2; j++){
-			U[i,j] = V[i,j] - func(i*dx);
+	for (int i = 0; i < N+2; i++){
+		for (int j = 0; j < N+2; j++){
+			U[i,j] = V[i,j];
 			ofile << setw(15) << setprecision(6) << U[i,j] << endl;
 		}
-	}
 	}
 	ofile.close();
 }
