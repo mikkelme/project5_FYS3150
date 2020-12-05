@@ -153,7 +153,8 @@ def Error_compare(filenames):
     plt.tight_layout(pad=1.1, w_pad=0.7, h_pad=0.2)
 
 
-    fig0.savefig("/../article/figures/compare_show.pdf", bbox_inches="tight")
+    #fig0.savefig("../article/figures/compare_show.pdf", bbox_inches="tight")
+    #fig1.savefig("../article/figures/compare_error.pdf", bbox_inches="tight")
     plt.show()
 
 
@@ -167,7 +168,6 @@ def Error_compare(filenames):
 
 
 if __name__ == "__main__":
-    # filenames = ["1DExplicit0.1.txt", "1DImplicit0.1.txt", "1DCN0.1.txt"]
     filenames = ["1DExplicit0.1.txt", "1DImplicit0.1.txt", "1DCN0.1.txt", \
                 "1DExplicit0.01.txt", "1DImplicit0.01.txt", "1DCN0.01.txt"]
 
