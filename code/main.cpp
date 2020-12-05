@@ -31,11 +31,11 @@ int main(int argc, char* argv[])
 	int timesteps = int(Time/dt) + 1;
 
 	Solver solver; // Initializes Solver class
-	int dim = 1; // Choose dimension of the problem (1 or 2)
+	int dim = 2; // Choose dimension of the problem (1 or 2)
 
 
-	if (dim == 1){
-		// Intialize solution vectors
+	if (dim == 1){ //One dimensional problem
+		// Intialize 1D solution vectors
 		vec v = zeros<vec>(N+2);
 		vec v_new = zeros<vec>(N+2);
 
@@ -61,24 +61,32 @@ int main(int argc, char* argv[])
 	}
 
 
-	if (dim == 2){
-		// 2D matrix
+	if (dim == 2){ //One dimensional problem
+		// Intialize 2D solution vectors
+		mat u = zeros<mat>(N+2,N+2);
+		mat u_new = zeros<mat>(N+2,N+2);
+
+
+		// 2D Initial and bounadry conditions
 		double pi = acos(-1.0);
-		mat V = zeros<mat>(N+2,N+2);
-		mat V_new = zeros<mat>(N+2,N+2);
 		for (int i = 1; i < N+1; i++){
+			x = i*dx;
 			for (int j = 1; j < N+1; j++){
-				x = i*dx; y = j*dx;
-				V[i,j] = sin(pi*x)*sin(pi*y);
+				y = j*dx;
+				u(i,j) = sin(pi/L*x)*sin(pi/L*y);
 			}
 		}
 
-		string method_name = "explicit";
-			string outfile = to_string(dim) + "D" + method_name + to_string(dx) + ".txt";
-		solver.WriteToFile2D(outfile, 0, V, N, Time, dt, dx);
+
+		// Open output file
+		string method_name = "Explicit";
+		string outfile = to_string(dim) + "D" + method_name + argv[1] + ".txt";
+		solver.WriteToFile2D(outfile, 0,  u,  N, Time, dt, dx);
+
+		// Main calculation loop
 		for (int t = 1; t <= timesteps; t++){
-			solver.twoD_Explicit(N, V, V_new, alpha); // Triple loop
-			solver.WriteToFile2D(outfile, t, V, N, Time, dt, dx);
+			solver.twoD_Explicit(N, u, u_new, alpha); // Triple loop
+			solver.WriteToFile2D(outfile, t,  u,  N, Time, dt, dx);
 		}
 	}
 

@@ -31,7 +31,7 @@ def read_dump(filename):
 			for i in range((N+2)):
 				u_line[i] = float(infile.readline())
 			u.append(u_line)
-		x = np.linspace(0,u_line[-1], N+2)
+		x = np.linspace(0,dx*(N+1), N+2)
 		t = np.array(t)
 		u = np.array(u)
 
@@ -46,6 +46,7 @@ def read_dump2(filename):
 		t = []
 		ux = [] #Row
 		uy = [] #Col
+		u = []
 		for line in infile:
 			t.append(float(line.split("=")[-1]))
 			u_line = np.zeros((N+2,N+2))
@@ -53,25 +54,48 @@ def read_dump2(filename):
 				for j in range(N+2):
 
 					u_line[i,j] = float(infile.readline())
-					#print(u_line[i,j], i, j)
-
-			ux.append(u_line[:,i])
-			uy.append(u_line[i,:])
+			u.append(u_line)
 
 
-		x = np.linspace(0,u_line[-1], N+2)
+		xy = np.linspace(0, dx*(N+1), N+2)
 		t = np.array(t)
-		ux = np.array(ux)
-		uy = np.array(uy)
+		u = np.array(u)
+		return xy, t, u, dx, dt, Time, N
 
 
-		return x, t, ux, uy
+def TwoDimSubplots(xy, t, u, dx, dt, Time, N):
+	X,Y = np.meshgrid(xy,xy)
+	colormap = "plasma"
+	vmin = 0; vmax = 1
+
+	fig = plt.figure(num=0, dpi=80, facecolor='w', edgecolor='k')
+	t_idx = np.linspace(0,len(t)-1, 4).astype(int)
+	t_idx = [0,30,35,37]
+
+
+	print(u[400])
+	for i in range(4):
+	 	plt.subplot(2,2,i+1)
+	 	plt.title(f"t = {t[t_idx[i]]:.2f}")
+	 	mesh = plt.pcolormesh(X,Y,u[t_idx[i]], vmin = vmin, vmax = vmax, cmap = colormap)
+
+	plt.tight_layout(pad=1.1, w_pad=0.7, h_pad=0.2)
+	fig.subplots_adjust(right = 0.8)
+	cbar_ax = fig.add_axes([0.85, 0.15, 0.05, 0.7])
+	fig.colorbar(mesh, cax = cbar_ax, label = "$u$")
+	plt.show()
+
+
+
+
+
+
+
 
 
 def TwoDimPlot(x,y,z):
 	X,Y = np.meshgrid(x,y)
-	print(np.shape(z), np.shape(X))
-	print(z[0])
+
 	plt.pcolormesh(X,Y,z)
 	plt.colorbar()
 	plt.xlabel("x", fontsize=14)
@@ -107,11 +131,16 @@ def ThreeDimPlot(x,t,ux,uy):
 
 
 if __name__ == "__main__":
-	filename = "main.txt"
-	x, t, u, dx, dt, Time, N= read_dump(filename)
-	x = np.linspace(0,1,144)
-	y = np.linspace(0,1,26)
-	print(np.shape(u))
-	TwoDimPlot(x,y,u)
-	#x, t, ux, uy = read_dump2(filename)
-	#ThreeDimPlot(x,t,ux,uy)
+
+	# x, t, u, dx, dt, Time, N = read_dump(filename = "1DExplicit0.1.txt")
+	# x = np.linspace(0,1,144)
+	# y = np.linspace(0,1,26)
+
+
+
+	xy, t, u, dx, dt, Time, N = read_dump2(filename = "2DExplicit0.05.txt")
+	TwoDimSubplots(xy, t, u, dx, dt, Time, N)
+
+
+	#TwoDimPlot(xy,xy,u[0])
+	# ThreeDimPlot(x,t,ux,uy)
