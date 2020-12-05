@@ -92,26 +92,26 @@ def Error_compare(filenames):
 
     plt.subplot(211)
     plt.title("dx = 0.1")
-    linestyle = "-"
+    linestyle = ["-.", "--", "--"]
     marker = "o"
     markersize = 5
     t1_idx = np.argmin(np.abs(t01 - t1))
     t2_idx = np.argmin(np.abs(t01 - t2))
     for i in range(len(U01)):
-        plott1 = plt.plot(x01, U01[i,t1_idx], linestyle = linestyle, marker = marker, markersize = markersize, label = method01[i])
-        plt.plot(x01, U01[i,t2_idx], linestyle = linestyle, marker = marker, markersize = markersize, color = plott1[0].get_color())
+        plott1 = plt.plot(x01, U01[i,t1_idx], linestyle = linestyle[i], marker = marker, markersize = markersize, label = method01[i])
+        plt.plot(x01, U01[i,t2_idx], linestyle = linestyle[i], marker = marker, markersize = markersize, color = plott1[0].get_color())
     plt.ylabel("$u$",fontsize = 14)
 
     plt.subplot(212)
     plt.title("dx = 0.01")
-    linestyle = "-"
+    linestyle = ["-.", "--", "--"]
     marker = None
     markersize = 5
     t1_idx = np.argmin(np.abs(t001 - t1))
     t_2idx = np.argmin(np.abs(t001 - t2))
     for i in range(len(U001)):
-        plott1 = plt.plot(x001, U001[i,t1_idx], linestyle = linestyle, marker = marker, markersize = markersize, label = method001[i])
-        plt.plot(x001, U001[i,t_2idx], linestyle = linestyle, marker = marker, markersize = markersize, color = plott1[0].get_color())
+        plott1 = plt.plot(x001, U001[i,t1_idx], linestyle = linestyle[i], marker = marker, markersize = markersize, label = method001[i])
+        plt.plot(x001, U001[i,t_2idx], linestyle = linestyle[i], marker = marker, markersize = markersize, color = plott1[0].get_color())
         plt.legend(loc = "best", fontsize = 13)
     plt.ylabel("$u$", fontsize = 14)
     plt.xlabel("x", fontsize = 14)
@@ -153,8 +153,8 @@ def Error_compare(filenames):
     plt.tight_layout(pad=1.1, w_pad=0.7, h_pad=0.2)
 
 
-    #fig0.savefig("../article/figures/compare_show.pdf", bbox_inches="tight")
-    #fig1.savefig("../article/figures/compare_error.pdf", bbox_inches="tight")
+    fig0.savefig("../article/figures/compare_show.pdf", bbox_inches="tight")
+    fig1.savefig("../article/figures/compare_error.pdf", bbox_inches="tight")
     plt.show()
 
 
