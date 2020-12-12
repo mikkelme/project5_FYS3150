@@ -67,13 +67,13 @@ def TwoDimSubplots(xy, t, u, dx, dt, Time, N):
 	X,Y = np.meshgrid(xy,xy)
 	colormap = "plasma"
 	vmin = 0; vmax = 1
+	print(dx, dt)
 
 	fig = plt.figure(num=0, dpi=80, facecolor='w', edgecolor='k')
 	t_idx = np.linspace(0,len(t)-1, 4).astype(int)
 	t_idx = [0,30,35,37]
 
 
-	print(u[400])
 	for i in range(4):
 	 	plt.subplot(2,2,i+1)
 	 	plt.title(f"t = {t[t_idx[i]]:.2f}")
@@ -84,9 +84,6 @@ def TwoDimSubplots(xy, t, u, dx, dt, Time, N):
 	cbar_ax = fig.add_axes([0.85, 0.15, 0.05, 0.7])
 	fig.colorbar(mesh, cax = cbar_ax, label = "$u$")
 	plt.show()
-
-
-
 
 
 
