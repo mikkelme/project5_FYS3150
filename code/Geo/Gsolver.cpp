@@ -29,8 +29,13 @@ void Solver::Explicit(int N, vec &v, vec &v_new, double alpha){
 			v_new[i] = alpha*v[i-1] + (1-2*alpha)*v[i]+alpha*v[i+1];
 		}
 		v = v_new;
+}
 
-
+void Solver::Add_QdT(vec &v, vec &Q_vec, double dz, double dt){
+	int N = size(v)[0]-2;
+	for (int i = 0; i < N+2; i++){
+		v[i] += Q_vec[i]*dz*dt;
+	}
 }
 
 
@@ -88,7 +93,7 @@ void Solver::twoD_Explicit(int N, mat &u, mat &u_new, double alpha){
 }
 
 
-void Solver::WriteToFile1D(string outfile, int t, vec &v, int N, double Time, double dt, double dx, double func (double, double, double, double), double L){
+void Solver::WriteToFile_ReScale(string outfile, int t, vec &v, int N, double Time, double dt, double dx, double func (double, double, double, double), double L){
 	ofstream ofile;
 
 	if (t == 0){
@@ -107,6 +112,7 @@ void Solver::WriteToFile1D(string outfile, int t, vec &v, int N, double Time, do
 	ofile << "t=" << t*dt << endl;
 	for (int i = 0; i < N+2; i++){
 		u[i] = v[i] - func(i*dx,Ta,Tb, L);
+		
 		ofile << setw(15) << setprecision(8) << u[i] << endl;
 	}
 
