@@ -11,8 +11,8 @@ ${PROG}: 						${PROG}.o Gsolver.o
 ${PROG}.o: 					${PROG}.cpp
 										${CPPflags} -c ${PROG}.cpp
 
-solver.o: 				Gsolver.cpp Gsolver.h
-										${CPPflags} -c solver.cpp
+Gsolver.o: 				Gsolver.cpp Gsolver.h
+										${CPPflags} -c Gsolver.cpp
 
 
 clean:

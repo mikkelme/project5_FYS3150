@@ -12,13 +12,26 @@ using namespace arma;
 
 
 double f(double z, double Ta, double Tb, double L){
-	return z*(Ta - Tb)/L - Ta
+	return z*(Ta - Tb)/L - Ta;
+}
+
+double q(double z, double o){
+	if (z <= 20){
+		o = 1.4; // mu W/m^3
+	}
+	if (z <= 40){
+		o = 0.35; 
+	}
+	if (z <= 120){
+		o = 0.05;
+	}	
+	return o;
 
 }
 
 int main(int argc, char* argv[])
 {
-	double x,y;
+	double x,y,z, o;
 
 	// int N = atoi(argv[1]);
 	double dx = atof(argv[1]);
@@ -35,7 +48,7 @@ int main(int argc, char* argv[])
 	double k = 2.5; 		// [W/(m*°C)
 	double rho = 3.5e3; // [Kg/m^3]
 	double cp =  1000; 	// [J/(kg*°C)]
-	double alpha = k/(rho*cp)
+	alpha = k/(rho*cp);
 
 	double Q1 = 0;
 	double Q2 = 0;
@@ -54,13 +67,14 @@ int main(int argc, char* argv[])
 	// 1D Initial and bounadry conditions
 	v[0] = 0; v[N+1] = 0;
 	for (int i = 1; i < N+1; i++){
-		x = i*dx;
-		v[i] = f(z, Ta, Tb ,L); // Add f(x)
+		z = i*dx;
+		v[i] = f(z, Ta, Tb ,L) + q(z, o); // Add f(x)
+		cout << z <<" " << o << endl;
 	}
 
 	// Open output file
 	string method_name = "PlainDist";
-	string outfile = to_string(dim) + "D" + method_name + argv[1] + ".txt";
+	string outfile = to_string	(1) + "D" + method_name + argv[1] + ".txt";
 	solver.WriteToFile1D(outfile, 0, v, N, Time, dt, dx, f, L);
 
 	// Main calculation loop

@@ -88,7 +88,7 @@ void Solver::twoD_Explicit(int N, mat &u, mat &u_new, double alpha){
 }
 
 
-void Solver::WriteToFile1D(string outfile, int t, vec &v, int N, double Time, double dt, double dx, double func (double, double), double L){
+void Solver::WriteToFile1D(string outfile, int t, vec &v, int N, double Time, double dt, double dx, double func (double, double, double, double), double L){
 	ofstream ofile;
 
 	if (t == 0){
@@ -101,11 +101,12 @@ void Solver::WriteToFile1D(string outfile, int t, vec &v, int N, double Time, do
 	else {
 		ofile.open(outfile, ios::out | ios::app);
 	}
-
+	double Ta = 8; 		// [°C]
+	double Tb = 1300; // [°C]
 	vec u = zeros<vec>(N+2);
 	ofile << "t=" << t*dt << endl;
 	for (int i = 0; i < N+2; i++){
-		u[i] = v[i] - func(i*dx, L);
+		u[i] = v[i] - func(i*dx,Ta,Tb, L);
 		ofile << setw(15) << setprecision(8) << u[i] << endl;
 	}
 
