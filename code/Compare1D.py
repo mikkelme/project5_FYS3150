@@ -132,8 +132,8 @@ def Error_compare(filenames):
     u_ana01 = OneDim_analytic(x01,[t01[t1_idx],t01[t2_idx]],L=1)
     for i in range(len(U01)):
         plott1 = plt.plot(x01, np.abs(U01[i,t1_idx]-u_ana01[0]), linestyle = linestyle, marker = marker, markersize = markersize, label = method01[i] + " t1")
-        plt.plot(x01, np.abs(U01[i,t2_idx]-u_ana01[1]), linestyle = linestyle, marker = marker, markersize = markersize, label = method01[i] + " t2")
-    plt.ylabel("Absolute error",fontsize = 14)
+        plt.plot(x01, np.abs(U01[i,t2_idx]-u_ana01[1])/u_ana01[1], linestyle = linestyle, marker = marker, markersize = markersize, label = method01[i] + " t2")
+    plt.ylabel("Relative error",fontsize = 14)
 
     plt.subplot(212)
     plt.title("dx = 0.01")
@@ -146,9 +146,9 @@ def Error_compare(filenames):
     u_ana001 = OneDim_analytic(x001,[t001[t1_idx],t001[t2_idx]],L=1)
     for i in range(len(U001)):
         plott1 = plt.plot(x001, np.abs(U001[i,t1_idx]-u_ana001[0]), linestyle = linestyle, marker = marker, markersize = markersize, label = method001[i] + " t2")
-        plt.plot(x001, np.abs(U001[i,t2_idx]-u_ana001[1]), linestyle = linestyle, marker = marker, markersize = markersize, label = method001[i] + " t2")
+        plt.plot(x001, np.abs(U001[i,t2_idx]-u_ana001[1])/u_ana001[1], linestyle = linestyle, marker = marker, markersize = markersize, label = method001[i] + " t2")
         plt.legend(loc = "best", fontsize = 13)
-    plt.ylabel("Absolute error",fontsize = 14)
+    plt.ylabel("Relative error",fontsize = 14)
     plt.xlabel("x",fontsize = 14)
     plt.tight_layout(pad=1.1, w_pad=0.7, h_pad=0.2)
 
