@@ -39,7 +39,7 @@ def Animation_compare(x,t, u_num, u_ana):
     def init():
         numerical.set_data([], [])
         analytical.set_data([], [])
-        return numerical,
+        return numerical, analytical,
 
     # animation function.  This is called sequentially
     def animate(i):

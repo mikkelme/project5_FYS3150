@@ -37,6 +37,34 @@ def read_dump(filename):
 
 		return x, t, u, dx, dt, Time, N
 
+def Animation_show(x, t, u):
+	import matplotlib.animation as animation
+	fig = plt.figure()
+	ax = plt.axes(xlim=(x[0], x[-1]), ylim = [np.min(u),np.max(u)])
+	numerical, = ax.plot([], [], lw=2, label = "numerical")
+
+	# initialization function: plot the background of each frame
+	def init():
+	    numerical.set_data([], [])
+	    return numerical,
+
+	# animation function.  This is called sequentially
+	def animate(i):
+	    i = int(i)
+	    numerical.set_data(x,u[i])
+	    ax.set_title(f"t = {t[i]} ({t[i]/t[-1]*100:.2f})%")
+	    #ax.set_ylim(0, np.max(u_ana))
+	    return numerical,
+
+	# call the animator.
+	time_frames = np.linspace(0,len(t)-1,len(t))
+	anim = animation.FuncAnimation(fig, animate, init_func=init,
+	                               frames=time_frames, interval=1, blit=False)
+
+	plt.legend(bbox_to_anchor=(0.4, 0.80))
+	plt.show()
+
+
 def read_dump2(filename):
 	with open(filename, "r") as infile:
 		N = int(infile.readline().split("=")[-1])
@@ -88,8 +116,6 @@ def TwoDimSubplots(xy, t, u, dx, dt, Time, N):
 
 
 
-
-
 def TwoDimPlot(x,y,z):
 	X,Y = np.meshgrid(x,y)
 
@@ -129,14 +155,16 @@ def ThreeDimPlot(x,t,ux,uy):
 
 if __name__ == "__main__":
 
+	x, t, u, dx, dt, Time, N = read_dump(filename = "1DPlainDist2.txt")
+	Animation_show(x, t, u)
+
+
 	# x, t, u, dx, dt, Time, N = read_dump(filename = "1DExplicit0.1.txt")
 	# x = np.linspace(0,1,144)
 	# y = np.linspace(0,1,26)
 
-
-
-	xy, t, u, dx, dt, Time, N = read_dump2(filename = "2DExplicit0.05.txt")
-	TwoDimSubplots(xy, t, u, dx, dt, Time, N)
+	# xy, t, u, dx, dt, Time, N = read_dump2(filename = "2DExplicit0.05.txt")
+	# TwoDimSubplots(xy, t, u, dx, dt, Time, N)
 
 
 	#TwoDimPlot(xy,xy,u[0])

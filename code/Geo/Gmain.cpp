@@ -24,7 +24,7 @@ double Q(double z, double L, double alpha_const){
 		cout << "input z for function Q(z) were out of range 0-120" << endl;
 		exit(1);
 	}
-	return Q; //*1e-6*alpha_const/(L*L*L*L*L); // TO BE DONE: Check that scale are correct
+	return Q*1e-6*(L*L)/alpha_const; // TO BE DONE: Check that scale are correct
 }
 
 int main(int argc, char* argv[])
@@ -40,13 +40,12 @@ int main(int argc, char* argv[])
 	double year_to_sec = 31556926; //sec pr year
 
 	// int N = atoi(argv[1]);
-	double dz = atof(argv[1])/L;
-	double Time = atof(argv[2])*1e6*year_to_sec*alpha_const/(L*L); // time in My
+	double dz = atof(argv[1])*1e3/L; // [km]
+	double Time = atof(argv[2])*year_to_sec*1e6*alpha_const/(L*L); // [My]
 	int N = 1/dz - 1;
 	double dt = 0.5*dz*dz; // Stability condition for Forward Euler, Explicit
 	double alpha = 0.5; // dt/(dz*dz)
 	int timesteps = int(Time/dt) + 1;
-
 
 
 
@@ -67,25 +66,28 @@ int main(int argc, char* argv[])
 		z = i*dz;
 		v[i] = f(z, Ta, Tb ,L); // Add f(x)
 		Q_vec[i] = Q(z, L, alpha_const);
+		// cout << Q_vec[i] << endl;
 	}
 
-
-
+	//Read initial state
+	Solver.ReadState(infile, )
 
 	// Open output file
 	string method_name = "PlainDist";
 	string outfile = to_string	(1) + "D" + method_name + argv[1] + ".txt";
-	solver.WriteToFile1D(outfile, 0, v, N, Time, dt, dz, f, L);
+	solver.WriteToFile(outfile, 0, v, N, Time, dt, dz, f, L, alpha_const, Ta, Tb);
 
 	cout <<timesteps<< endl;
 	// Main calculation loop
 	for (int t = 1; t <= timesteps; t++){
 		solver.Explicit(N, v, v_new, alpha); 					// Double loop
-		solver.Add_QdT(v, Q_vec, dz, dt);
+		solver.Add_QdT(v, Q_vec, dt, rho, cp);
 		// solver.Implicit(N, v, v_new, alpha); 				// Tridiagonal
 		// solver.Crank_Nicolson(N, v, v_new, alpha); 	// Tridiagonal
-		// solver.WriteToFile_ReScale(outfile, t, v, N, Time, dt, dz, f, L);
+		solver.WriteToFile(outfile, t, v, N, Time, dt, dz, f, L, alpha_const, Ta, Tb);
 	}
+	solver.WriteLastState("SteadyState.txt", v, N, dz, f , L, alpha_const, Ta, Tb);
+
 
 
 

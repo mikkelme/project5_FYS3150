@@ -31,10 +31,10 @@ void Solver::Explicit(int N, vec &v, vec &v_new, double alpha){
 		v = v_new;
 }
 
-void Solver::Add_QdT(vec &v, vec &Q_vec, double dz, double dt){
+void Solver::Add_QdT(vec &v, vec &Q_vec, double dt, double rho, double cp){
 	int N = size(v)[0]-2;
 	for (int i = 0; i < N+2; i++){
-		v[i] += Q_vec[i]*dz*dt;
+		v[i] += Q_vec[i]*dt/(rho*cp);
 	}
 }
 
@@ -93,55 +93,45 @@ void Solver::twoD_Explicit(int N, mat &u, mat &u_new, double alpha){
 }
 
 
-void Solver::WriteToFile_ReScale(string outfile, int t, vec &v, int N, double Time, double dt, double dx, double func (double, double, double, double), double L){
+void Solver::WriteToFile(string outfile, int t, vec &v, int N, double Time, double dt, double dz, double func (double, double, double, double), double L, double alpha_const, double Ta, double Tb){
 	ofstream ofile;
+
 
 	if (t == 0){
 		ofile.open(outfile, ios::out);
 		ofile << "N=" << N << endl;
 		ofile << "Time=" << Time << endl;
-		ofile << "dx=" << dx << endl;
-		ofile << "dt=" << dt << endl;
+		ofile << "dz=" << dz*L << endl;
+		ofile << "dt=" << dt*(L*L)/(31556926*1e6*alpha_const) << endl;
 	}
+
 	else {
 		ofile.open(outfile, ios::out | ios::app);
 	}
-	double Ta = 8; 		// [°C]
-	double Tb = 1300; // [°C]
 	vec u = zeros<vec>(N+2);
-	ofile << "t=" << t*dt << endl;
+	ofile << "t=" << t*dt*(L*L)/(31556926*1e6*alpha_const) << endl;
 	for (int i = 0; i < N+2; i++){
-		u[i] = v[i] - func(i*dx,Ta,Tb, L);
-		
+		u[i] = v[i] - func(i*dz,Ta,Tb, L);
 		ofile << setw(15) << setprecision(8) << u[i] << endl;
 	}
 
-
-
 	ofile.close();
 }
 
-
-
-void Solver::WriteToFile2D(string outfile, int t, mat &u, int N, double Time, double dt, double dx){
+void Solver::WriteLastState(string outfile, vec &v, int N, double dz, double func (double, double, double, double), double L, double alpha_const, double Ta, double Tb){
 	ofstream ofile;
 
-	if (t == 0){
-		ofile.open(outfile, ios::out);
-		ofile << "N=" << N << endl;
-		ofile << "Time=" << Time << endl;
-		ofile << "dx=" << dx << endl;
-		ofile << "dt=" << dt << endl;
-	}
-	else {
-		ofile.open(outfile, ios::out | ios::app);
-	}
+	ofile.open(outfile, ios::out);
+	ofile << "N=" << N << endl;
+	ofile << "dz=" << dz*L << endl;
 
-	ofile << "t=" << t*dt << endl;
+	vec u = zeros<vec>(N+2);
 	for (int i = 0; i < N+2; i++){
-		for (int j = 0; j < N+2; j++){
-			ofile << setw(15) << setprecision(6) << u(i,j) << endl;
-		}
+		u[i] = v[i] - func(i*dz,Ta,Tb, L);
+		ofile << setw(15) << setprecision(8) << u[i] << endl;
 	}
-	ofile.close();
 }
+
+
+void Solver::ReadState(){
+	ofstream ofile;
