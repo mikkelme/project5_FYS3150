@@ -159,6 +159,34 @@ def Error_compare(filenames):
 
 
 
+def Error_compare_dt(filenames):
+
+    t1 = 0.1
+    data = [[], [], []]
+
+
+    method = np.array(["Explicit", "Implicit", "CN"])
+    colorcycle = plt.rcParams['axes.prop_cycle'].by_key()['color']
+
+    for filename in filenames:
+        x, t, u, dx, dt, Time, N = read_dump(filename)
+        t_idx = np.argmin(np.abs(t - t1))
+        u_ana = OneDim_analytic(x, [t[t_idx]], L=1)
+
+        method_idx = np.where(method == filename.split("D")[1].split("0")[0])[0][0]
+        data[method_idx].append([dt, np.sum(np.abs(u - u_ana))])
+
+
+    data = np.array(data)
+
+    for i in range(len(data)):
+        for j in range(len(data[i])):
+            plt.plot(data[i,j,0], data[i,j,1], "o", color = colorcycle[i], label = method[i])
+            print(data[i,j,0], data[i,j,1])
+    plt.legend()
+    plt.show()
+
+
 
 
 
@@ -168,10 +196,13 @@ def Error_compare(filenames):
 
 
 if __name__ == "__main__":
-    filenames = ["1DExplicit0.1.txt", "1DImplicit0.1.txt", "1DCN0.1.txt", \
-                "1DExplicit0.01.txt", "1DImplicit0.01.txt", "1DCN0.01.txt"]
+    # filenames = ["1DExplicit0.1.txt", "1DImplicit0.1.txt", "1DCN0.1.txt", \
+    #             "1DExplicit0.01.txt", "1DImplicit0.01.txt", "1DCN0.01.txt"]
 
-    Error_compare(filenames)
+    # Error_compare(filenames)
+
+    filenames = ["1DExplicit0.1.txt", "1DImplicit0.1.txt", "1DCN0.1.txt"]
+    Error_compare_dt(filenames)
 
 
     # filename = "1DExplicit0.1.txt"

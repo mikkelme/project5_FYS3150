@@ -21,7 +21,7 @@ public:
   void twoD_Explicit(int N, mat &V, mat &V_new, double alpha);
   void WriteToFile(string outfile, int t, vec &v, int N, double Time, double dt, double dx, double func (double, double, double, double), double L, double alpha_const, double Ta, double Tb);
   void WriteLastState(string outfile, vec &v, int N, double dx, double func (double, double, double, double), double L, double alpha_const, double Ta, double Tb);
-
+  vec ReadState(string filename, double L, double &dz, int &N);
 
 private:
 };

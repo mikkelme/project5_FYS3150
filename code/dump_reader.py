@@ -16,7 +16,6 @@ matplotlib.rcParams['font.family'] = 'STIXGeneral'
 
 
 
-
 def read_dump(filename):
 	with open(filename, "r") as infile:
 		N = int(infile.readline().split("=")[-1])
@@ -89,6 +88,28 @@ def read_dump2(filename):
 		t = np.array(t)
 		u = np.array(u)
 		return xy, t, u, dx, dt, Time, N
+
+
+def OneDimMultiTime(x, t, u):
+
+	fig = plt.figure(num=0, dpi=80, facecolor='w', edgecolor='k')
+
+	time = np.array([[10],[50],[100],[500]])
+	idx = np.argmin(np.abs(t-time), axis = 1)
+
+	print(u[idx[1]])
+	for i in range(len(idx)):
+	  	plt.plot(x/1e3, u[idx[i]], label = f"t = {t[idx[i]]:.0f} My" )
+
+	plt.legend(loc = "best", fontsize = 13)
+	plt.xlabel("z [km]",fontsize = 14)
+	plt.ylabel("T [$^{\circ}$C]", fontsize = 14)
+	plt.tight_layout(pad=1.1, w_pad=0.7, h_pad=0.2)
+	plt.savefig("../../article/figures/SteadyState_BRQ0.pdf", bbox_inches="tight")
+
+
+	plt.show()
+
 
 
 def TwoDimSubplots(xy, t, u, dx, dt, Time, N):

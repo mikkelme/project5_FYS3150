@@ -24,7 +24,8 @@ double Q(double z, double L, double alpha_const){
 		cout << "input z for function Q(z) were out of range 0-120" << endl;
 		exit(1);
 	}
-	return Q*1e-6*(L*L)/alpha_const; // TO BE DONE: Check that scale are correct
+	// return 0;
+	return Q*1e-6*(L*L)/alpha_const;
 }
 
 int main(int argc, char* argv[])
@@ -54,9 +55,15 @@ int main(int argc, char* argv[])
 	double Tb = 1300; // [°C]
 
 
+
 	Solver solver; // Initializes Solver class
+
+	//Read initial state
+
+
 	// Intialize 1D solution vectors
 	vec v = zeros<vec>(N+2);
+	// vec v = solver.ReadState("SteadyState.txt", L, dz, N);
 	vec v_new = zeros<vec>(N+2);
 	vec Q_vec = zeros<vec>(N+2);
 
@@ -64,16 +71,15 @@ int main(int argc, char* argv[])
 	v[0] = 0; v[N+1] = 0;
 	for (int i = 1; i < N+1; i++){
 		z = i*dz;
-		v[i] = f(z, Ta, Tb ,L); // Add f(x)
+		v[i] += f(z, Ta, Tb ,L); // Add f(x)
 		Q_vec[i] = Q(z, L, alpha_const);
-		// cout << Q_vec[i] << endl;
 	}
 
-	//Read initial state
-	Solver.ReadState(infile, )
+
+
 
 	// Open output file
-	string method_name = "PlainDist";
+	string method_name = "PlainDist_BR";
 	string outfile = to_string	(1) + "D" + method_name + argv[1] + ".txt";
 	solver.WriteToFile(outfile, 0, v, N, Time, dt, dz, f, L, alpha_const, Ta, Tb);
 
@@ -86,7 +92,7 @@ int main(int argc, char* argv[])
 		// solver.Crank_Nicolson(N, v, v_new, alpha); 	// Tridiagonal
 		solver.WriteToFile(outfile, t, v, N, Time, dt, dz, f, L, alpha_const, Ta, Tb);
 	}
-	solver.WriteLastState("SteadyState.txt", v, N, dz, f , L, alpha_const, Ta, Tb);
+	solver.WriteLastState("SteadyState_BR.txt", v, N, dz, f , L, alpha_const, Ta, Tb);
 
 
 

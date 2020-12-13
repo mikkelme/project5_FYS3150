@@ -122,8 +122,8 @@ void Solver::WriteLastState(string outfile, vec &v, int N, double dz, double fun
 	ofstream ofile;
 
 	ofile.open(outfile, ios::out);
-	ofile << "N=" << N << endl;
-	ofile << "dz=" << dz*L << endl;
+	ofile << N << endl;
+	ofile << dz*L << endl;
 
 	vec u = zeros<vec>(N+2);
 	for (int i = 0; i < N+2; i++){
@@ -133,5 +133,23 @@ void Solver::WriteLastState(string outfile, vec &v, int N, double dz, double fun
 }
 
 
-void Solver::ReadState(){
-	ofstream ofile;
+vec Solver::ReadState(string filename, double L, double &dz, int &N){
+	string line;
+	ifstream infile (filename);
+
+	getline(infile, line);
+	N = stof(line);
+
+	getline(infile, line);
+	dz = stof(line)/L;
+
+	// cout << N << " " << dz << endl;
+	vec v = zeros<vec>(N+2);
+	for (int i = 0; i < N+2; i++){
+		getline(infile, line);
+		v[i] = stof(line);
+		// cout << v[i] << endl;
+	}
+	return v;
+
+}
