@@ -21,17 +21,19 @@ int main(int argc, char* argv[])
 	double x,y;
 
 	// int N = atoi(argv[1]);
-	double dx = atof(argv[1]);
+	double dx = 0.1;
+	double dt = atof(argv[1]);
+	// double dx = atof(argv[1]);
 	double Time = atof(argv[2]);
 
 	double L = 1;
 	int N = L/dx - 1;
-	double dt = 0.5*dx*dx; // Stability condition for Forward Euler, Explicit
-	double alpha = 0.5; // dt/(dx*dx)
+	// double dt = 0.5*dx*dx; // Stability condition for Forward Euler, Explicit
+	double alpha = dt/(dx*dx);
 	int timesteps = int(Time/dt) + 1;
 
 	Solver solver; // Initializes Solver class
-	int dim = 2; // Choose dimension of the problem (1 or 2)
+	int dim = 1; // Choose dimension of the problem (1 or 2)
 
 
 	if (dim == 1){ //One dimensional problem
@@ -47,15 +49,15 @@ int main(int argc, char* argv[])
 		}
 
 		// Open output file
-		string method_name = "Explicit";
+		string method_name = "CN";
 		string outfile = to_string(dim) + "D" + method_name + argv[1] + ".txt";
 		solver.WriteToFile1D(outfile, 0, v, N, Time, dt, dx, f, L);
 
 		// Main calculation loop
 		for (int t = 1; t <= timesteps; t++){
-			solver.Explicit(N, v, v_new, alpha); 					// Double loop
+			// solver.Explicit(N, v, v_new, alpha); 					// Double loop
 			// solver.Implicit(N, v, v_new, alpha); 				// Tridiagonal
-			// solver.Crank_Nicolson(N, v, v_new, alpha); 	// Tridiagonal
+			solver.Crank_Nicolson(N, v, v_new, alpha); 	// Tridiagonal
 			solver.WriteToFile1D(outfile, t, v, N, Time, dt, dx, f, L);
 		}
 	}

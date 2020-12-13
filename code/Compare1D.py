@@ -1,5 +1,6 @@
 from dump_reader import *
 from analytic_solution import *
+import os
 
 
 def TwoDimPlot_compare(x,t, u_num, u_ana):
@@ -159,7 +160,8 @@ def Error_compare(filenames):
 
 
 
-def Error_compare_dt(filenames):
+def Error_compare_dt(folder):
+    filenames = [f for f in os.listdir(folder) if f != ".DS_Store" if f != "auto_runner.py"]
 
     t1 = 0.1
     data = [[], [], []]
@@ -167,22 +169,39 @@ def Error_compare_dt(filenames):
 
     method = np.array(["Explicit", "Implicit", "CN"])
     colorcycle = plt.rcParams['axes.prop_cycle'].by_key()['color']
-
+    print(filenames)
     for filename in filenames:
-        x, t, u, dx, dt, Time, N = read_dump(filename)
+        x, t, u, dx, dt, Time, N = read_dump(folder + "/" + filename)
         t_idx = np.argmin(np.abs(t - t1))
         u_ana = OneDim_analytic(x, [t[t_idx]], L=1)
 
-        method_idx = np.where(method == filename.split("D")[1].split("0")[0])[0][0]
-        data[method_idx].append([dt, np.sum(np.abs(u - u_ana))])
+        print("-->",t_idx)
+        print("->", t[-1])
+        print(filename, t[t_idx])
+
+        plt.plot(x,u[t_idx], label = "numerisk")
+        plt.plot(x,u_ana[0], label = "analytical")
+        plt.legend()
+        plt.show()
+        # exit()
+
+
+
+        # method_idx = np.where(method == filename.split("D")[1].split("0")[0])[0][0]
+        method_idx = np.argwhere(np.array(["E", "I", "C"]) == filename.split("D")[1][0])[0][0]
+        err = np.sum(np.abs(u - u_ana))
+        data[method_idx].append([dt, err])
+        #print(err)
 
 
     data = np.array(data)
-
+    print(len(data))
     for i in range(len(data)):
         for j in range(len(data[i])):
             plt.plot(data[i,j,0], data[i,j,1], "o", color = colorcycle[i], label = method[i])
-            print(data[i,j,0], data[i,j,1])
+            # print(data[i,j,0], data[i,j,1])
+    plt.xscale("log")
+    plt.yscale("log")
     plt.legend()
     plt.show()
 
@@ -201,8 +220,8 @@ if __name__ == "__main__":
 
     # Error_compare(filenames)
 
-    filenames = ["1DExplicit0.1.txt", "1DImplicit0.1.txt", "1DCN0.1.txt"]
-    Error_compare_dt(filenames)
+    Error_compare_dt("error_plot_data")
+
 
 
     # filename = "1DExplicit0.1.txt"
@@ -210,6 +229,7 @@ if __name__ == "__main__":
     # u_ana = OneDim_analytic(x,t,L=1)
     # TwoDimPlot_compare(x,t, u_num, u_ana)
     # Animation_compare(x,t, u_num, u_ana)
+
 
 
 

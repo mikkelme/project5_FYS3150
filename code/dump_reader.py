@@ -58,7 +58,7 @@ def Animation_show(x, t, u):
 	# call the animator.
 	time_frames = np.linspace(0,len(t)-1,len(t))
 	anim = animation.FuncAnimation(fig, animate, init_func=init,
-	                               frames=time_frames, interval=1, blit=False)
+	                               frames=time_frames, interval=100, blit=False)
 
 	plt.legend(bbox_to_anchor=(0.4, 0.80))
 	plt.show()
@@ -176,7 +176,8 @@ def ThreeDimPlot(x,t,ux,uy):
 
 if __name__ == "__main__":
 
-	x, t, u, dx, dt, Time, N = read_dump(filename = "1DPlainDist2.txt")
+	# x, t, u, dx, dt, Time, N = read_dump(filename = "1DPlainDist2.txt")
+	x, t, u, dx, dt, Time, N = read_dump(filename = "error_plot_data/1DExplicit5e-05.txt")
 	Animation_show(x, t, u)
 
 
