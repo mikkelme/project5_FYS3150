@@ -31,10 +31,12 @@ void Solver::Explicit(int N, vec &v, vec &v_new, double alpha){
 		v = v_new;
 }
 
-void Solver::Add_QdT(vec &v, vec &Q_vec, double dt, double rho, double cp){
+void Solver::Add_Q(double t, vec &v, vec &Q_vec, double Q_rad (double, double, double, double), double dt, double dz, double rho, double cp, double alpha_const, double L){
 	int N = size(v)[0]-2;
-	for (int i = 0; i < N+2; i++){
-		v[i] += Q_vec[i]*dt/(rho*cp);
+	double z;
+	for (int i = 1; i < N+1; i++){
+		z = i*dz;
+		v[i] += (Q_vec[i] + Q_rad(z, t, L, alpha_const))*dt/(rho*cp);
 	}
 }
 

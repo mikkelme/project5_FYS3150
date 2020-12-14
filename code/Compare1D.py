@@ -3,30 +3,7 @@ from analytic_solution import *
 import os
 
 
-def TwoDimPlot_compare(x,t, u_num, u_ana):
-    X,T = np.meshgrid(x,t)
-    colormap = "plasma"
-    vmin = 0; vmax = 1
-    fig = plt.figure(num=0, dpi=80, facecolor='w', edgecolor='k')
 
-    plt.subplot(211)
-    plt.title("Numerical")
-    mesh_num = plt.pcolormesh(X,T,u_num, vmin = vmin, vmax = vmax, cmap = colormap)
-    plt.ylabel("time", fontsize=14)
-
-    plt.subplot(212)
-    plt.title("Analytical")
-    plt.pcolormesh(X,T,u_ana, vmin = vmin, vmax = vmax, cmap = colormap)
-    plt.xlabel("$x$", fontsize=14)
-    plt.ylabel("time", fontsize=14)
-
-    plt.tight_layout(pad=1.1, w_pad=0.7, h_pad=0.2)
-    fig.subplots_adjust(right = 0.8)
-    cbar_ax = fig.add_axes([0.85, 0.15, 0.05, 0.7])
-    fig.colorbar(mesh_num, cax = cbar_ax, label = "$u$")
-
-    #plt.savefig("../../article/figures/phase_subplot.pdf", bbox_inches="tight")
-    plt.show()
 
 
 def Animation_compare(x,t, u_num, u_ana):
@@ -60,7 +37,9 @@ def Animation_compare(x,t, u_num, u_ana):
     plt.show()
 
 
-def Error_compare(filenames):
+def Error_compare(folder):
+    filenames = [f for f in os.listdir(folder) if f != ".DS_Store" if f != "auto_runner.py"]
+
     t1 = 0.1
     t2 = 0.2
 
@@ -69,7 +48,7 @@ def Error_compare(filenames):
     U001 = []   #dx = 0.01
     method001 = [] #order of method
     for filename in filenames:
-        x, t, u, dx, dt, Time, N = read_dump(filename)
+        x, t, u, dx, dt, Time, N = read_dump(folder + "/" + filename)
         if dx == 0.1:
             x01 = x
             t01 = t
@@ -160,6 +139,7 @@ def Error_compare(filenames):
 
 
 
+
 def Error_compare_dt(folder):
     filenames = [f for f in os.listdir(folder) if f != ".DS_Store" if f != "auto_runner.py"]
 
@@ -169,41 +149,39 @@ def Error_compare_dt(folder):
 
     method = np.array(["Explicit", "Implicit", "CN"])
     colorcycle = plt.rcParams['axes.prop_cycle'].by_key()['color']
-    print(filenames)
     for filename in filenames:
         x, t, u, dx, dt, Time, N = read_dump(folder + "/" + filename)
         t_idx = np.argmin(np.abs(t - t1))
         u_ana = OneDim_analytic(x, [t[t_idx]], L=1)
 
-        print("-->",t_idx)
-        print("->", t[-1])
-        print(filename, t[t_idx])
-
-        plt.plot(x,u[t_idx], label = "numerisk")
-        plt.plot(x,u_ana[0], label = "analytical")
-        plt.legend()
-        plt.show()
+        # plt.plot(x,u[t_idx], label = "numerisk")
+        # plt.plot(x,u_ana[0], label = "analytical")
+        # plt.legend()
+        # plt.show()
         # exit()
-
-
-
-        # method_idx = np.where(method == filename.split("D")[1].split("0")[0])[0][0]
+        print(filename)
         method_idx = np.argwhere(np.array(["E", "I", "C"]) == filename.split("D")[1][0])[0][0]
-        err = np.sum(np.abs(u - u_ana))
+        err = np.mean(np.abs(u[t_idx,1:] - u_ana[0,1:])/u_ana[0,1:])
         data[method_idx].append([dt, err])
-        #print(err)
+
 
 
     data = np.array(data)
-    print(len(data))
+    idx = np.argsort(data[:,:,0], axis = 1)
+
     for i in range(len(data)):
-        for j in range(len(data[i])):
-            plt.plot(data[i,j,0], data[i,j,1], "o", color = colorcycle[i], label = method[i])
-            # print(data[i,j,0], data[i,j,1])
+        plt.plot(data[i,idx[i],0], data[i,idx[i],1], "-o", color = colorcycle[i], label = method[i])
     plt.xscale("log")
     plt.yscale("log")
-    plt.legend()
+    # plt.xticks([5e-7, 5e-6, 5e-5, 5e-4, 5e-3, 5e-2, 5e-1])
+    plt.legend(loc = "best", fontsize = 13)
+    plt.xlabel("dt", fontsize = 14)
+    plt.ylabel("Relative Error", fontsize = 14)
+    plt.tight_layout(pad=1.1, w_pad=0.7, h_pad=0.2)
+    plt.savefig("../article/figures/compare_error_dt.pdf", bbox_inches="tight")
+
     plt.show()
+
 
 
 
@@ -218,9 +196,10 @@ if __name__ == "__main__":
     # filenames = ["1DExplicit0.1.txt", "1DImplicit0.1.txt", "1DCN0.1.txt", \
     #             "1DExplicit0.01.txt", "1DImplicit0.01.txt", "1DCN0.01.txt"]
 
-    # Error_compare(filenames)
 
-    Error_compare_dt("error_plot_data")
+    # Error_compare("error_compare2")
+
+    Error_compare_dt("error_plot_data2")
 
 
 

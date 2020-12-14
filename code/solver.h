@@ -14,6 +14,7 @@ class Solver
 public:
   void Forward_Sub(int N, vec &a, vec &b, vec &c, vec &g);
   void Backward_Sub(int N, vec &b, vec &c, vec &g, vec &v);
+  void tridag(int N, vec &a, vec &b, vec &c, vec &g, vec &v);
   void Explicit(int N, vec &v, vec &v_new, double alpha);
   void Implicit(int N, vec &v, vec &v_new, double alpha);
   void Crank_Nicolson(int N, vec &v, vec &v_old, double alpha);

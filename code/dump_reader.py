@@ -36,7 +36,7 @@ def read_dump(filename):
 
 		return x, t, u, dx, dt, Time, N
 
-def Animation_show(x, t, u):
+def Animation_show(x, t, u, interval):
 	import matplotlib.animation as animation
 	fig = plt.figure()
 	ax = plt.axes(xlim=(x[0], x[-1]), ylim = [np.min(u),np.max(u)])
@@ -58,7 +58,7 @@ def Animation_show(x, t, u):
 	# call the animator.
 	time_frames = np.linspace(0,len(t)-1,len(t))
 	anim = animation.FuncAnimation(fig, animate, init_func=init,
-	                               frames=time_frames, interval=100, blit=False)
+	                               frames=time_frames, interval=interval, blit=False)
 
 	plt.legend(bbox_to_anchor=(0.4, 0.80))
 	plt.show()
@@ -90,25 +90,6 @@ def read_dump2(filename):
 		return xy, t, u, dx, dt, Time, N
 
 
-def OneDimMultiTime(x, t, u):
-
-	fig = plt.figure(num=0, dpi=80, facecolor='w', edgecolor='k')
-
-	time = np.array([[10],[50],[100],[500]])
-	idx = np.argmin(np.abs(t-time), axis = 1)
-
-	print(u[idx[1]])
-	for i in range(len(idx)):
-	  	plt.plot(x/1e3, u[idx[i]], label = f"t = {t[idx[i]]:.0f} My" )
-
-	plt.legend(loc = "best", fontsize = 13)
-	plt.xlabel("z [km]",fontsize = 14)
-	plt.ylabel("T [$^{\circ}$C]", fontsize = 14)
-	plt.tight_layout(pad=1.1, w_pad=0.7, h_pad=0.2)
-	plt.savefig("../../article/figures/SteadyState_BRQ0.pdf", bbox_inches="tight")
-
-
-	plt.show()
 
 
 
@@ -116,22 +97,41 @@ def TwoDimSubplots(xy, t, u, dx, dt, Time, N):
 	X,Y = np.meshgrid(xy,xy)
 	colormap = "plasma"
 	vmin = 0; vmax = 1
-	print(dx, dt)
+
+	def remove_axis(i):
+	    if i == 0:
+	        ax = plt.gca()
+	        ax.set_xticks([])
+	    if i == 1:
+	        ax = plt.gca()
+	        ax.set_xticks([])
+	        ax.set_yticks([])
+	    if i == 3:
+	        ax = plt.gca()
+	        ax.set_yticks([])
 
 	fig = plt.figure(num=0, dpi=80, facecolor='w', edgecolor='k')
-	t_idx = np.linspace(0,len(t)-1, 4).astype(int)
-	t_idx = [0,30,35,37]
+	# t_end = 0.1
+	# t_end_idx = np.argmin(np.abs(t-t_end))
+	# t_idx = np.linspace(0,t_end_idx, 4).astype(int)
+	t_idx = [0, 34, 36, 38]
+
+
 
 
 	for i in range(4):
-	 	plt.subplot(2,2,i+1)
-	 	plt.title(f"t = {t[t_idx[i]]:.2f}")
-	 	mesh = plt.pcolormesh(X,Y,u[t_idx[i]], vmin = vmin, vmax = vmax, cmap = colormap)
-
+		plt.subplot(2,2,i+1)
+		plt.title(f"t = {t[t_idx[i]]:.3f} (step = {t_idx[i]})")
+		remove_axis(i)
+		mesh = plt.pcolormesh(X,Y,u[t_idx[i]], vmin = vmin, vmax = vmax, cmap = colormap, linewidth=0, rasterized=True)
+		mesh.set_edgecolor('face')
 	plt.tight_layout(pad=1.1, w_pad=0.7, h_pad=0.2)
 	fig.subplots_adjust(right = 0.8)
 	cbar_ax = fig.add_axes([0.85, 0.15, 0.05, 0.7])
-	fig.colorbar(mesh, cax = cbar_ax, label = "$u$")
+	fig.colorbar(mesh, cax = cbar_ax, label = "u")
+	fig.savefig("../article/figures/2D_unstable0.01.pdf", bbox_inches="tight")
+
+
 	plt.show()
 
 
@@ -177,16 +177,17 @@ def ThreeDimPlot(x,t,ux,uy):
 if __name__ == "__main__":
 
 	# x, t, u, dx, dt, Time, N = read_dump(filename = "1DPlainDist2.txt")
-	x, t, u, dx, dt, Time, N = read_dump(filename = "error_plot_data/1DExplicit5e-05.txt")
-	Animation_show(x, t, u)
+
+	# x, t, u, dx, dt, Time, N = read_dump(filename = "error_plot_data/1DExplicit5e-05.txt")
+	# Animation_show(x, t, u)
 
 
 	# x, t, u, dx, dt, Time, N = read_dump(filename = "1DExplicit0.1.txt")
 	# x = np.linspace(0,1,144)
 	# y = np.linspace(0,1,26)
 
-	# xy, t, u, dx, dt, Time, N = read_dump2(filename = "2DExplicit0.05.txt")
-	# TwoDimSubplots(xy, t, u, dx, dt, Time, N)
+	xy, t, u, dx, dt, Time, N = read_dump2(filename = "2DExplicit_Unstable0.01.txt")
+	TwoDimSubplots(xy, t, u, dx, dt, Time, N)
 
 
 	#TwoDimPlot(xy,xy,u[0])

@@ -23,6 +23,26 @@ void Solver::Backward_Sub(int N, vec &b, vec &c, vec &g, vec &v){
 	}
 }
 
+
+void Solver::tridag(int N, vec &a, vec &b, vec &c, vec &g, vec &v){
+	//Forward Sub
+	double k; // Reducing no. FLOPs
+	for (int i = 2; i < N+1; i++){
+		k = a[i]/b[i-1];
+		b[i] = b[i] - k*c[i-1];
+		g[i] = g[i] - k*g[i-1];
+	}
+
+	//Backwards Sub
+	v[0] = v[N+1] = 0;
+	v[N] = g[N]/b[N];
+	for (int i = N-1; i > 0; i--){
+		v[i] = (g[i] - c[i]*v[i+1])/b[i];
+	}
+}
+
+
+
 void Solver::Explicit(int N, vec &v, vec &v_new, double alpha){
 
 		for (int i = 1; i < N+1; i++){
@@ -40,15 +60,16 @@ void Solver::Implicit(int N, vec &v, vec &v_new, double alpha){
 	vec b = zeros<vec>(N+2);
 	vec c = zeros<vec>(N+2);
 
-	a[0] = c[0] = -alpha; b[0] = 1+2*alpha;
-	for (int i = 1; i < N+1; i++){
+	// a[0] = c[0] = -alpha; b[0] = 1+2*alpha;
+	for (int i = 0; i < N+2; i++){
 		a[i] = c[i] = -alpha;
 		b[i] = 1+2*alpha;
 	}
-	a[N+1] = c[N+1] = -alpha; b[N+1] = 1+2*alpha;
+	// a[N+1] = c[N+1] = -alpha; b[N+1] = 1+2*alpha;
 
-	Forward_Sub(N, a, b, c, v);
-	Backward_Sub(N, b, c, v, v_new);
+	// Forward_Sub(N, a, b, c, v);
+	// Backward_Sub(N, b, c, v, v_new);
+	tridag(N, a, b, c, v, v_new);
 
 	v = v_new;
 
@@ -72,9 +93,9 @@ void Solver::Crank_Nicolson(int N, vec &v, vec &v_old, double alpha){
 		v_old[i] = alpha*v[i-1] + (2-2*alpha)*v[i]+alpha*v[i+1];
 	}
 
-
-	Forward_Sub(N, a, b, c, v_old);
-	Backward_Sub(N, b, c, v_old, v);
+	// Forward_Sub(N, a, b, c, v_old);
+	// Backward_Sub(N, b, c, v_old, v);
+	tridag(N, a, b, c, v_old, v);
 }
 
 
