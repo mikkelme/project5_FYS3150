@@ -21,17 +21,17 @@ int main(int argc, char* argv[])
 	double x,y;
 
 
-	// double dx = 0.1;
-	// double dt = atof(argv[1]);
-	double dx = atof(argv[1]);
+	double dx = 0.01;
+	double dt = atof(argv[1]);
+	// double dx = atof(argv[1]);
 	double Time = atof(argv[2]);
 
 	Solver solver; // Initializes Solver class
-	int dim = 2; // Choose dimension of the problem (1 or 2)
+	int dim = 1; // Choose dimension of the problem (1 or 2)
 
 	double L = 1;
 	int N = L/dx - 1;
-	double dt = 0.5*dx*dx/dim; // Stability condition for Forward Euler, Explicit
+	// double dt = 0.5*dx*dx/dim; // Stability condition for Forward Euler, Explicit
 	double alpha = dt/(dx*dx);
 	int timesteps = int(Time/dt) + 1;
 
@@ -54,7 +54,7 @@ int main(int argc, char* argv[])
 		solver.WriteToFile1D(outfile, 0, v, N, Time, dt, dx, f, L);
 
 		// Main calculation loop
-		for (int t = 1; t <= timesteps; t++){
+		for (int t = 1; t < timesteps; t++){
 			// solver.Explicit(N, v, v_new, alpha); 					// Double loop
 			// solver.Implicit(N, v, v_new, alpha); 				// Tridiagonal
 			solver.Crank_Nicolson(N, v, v_new, alpha); 	// Tridiagonal
@@ -88,7 +88,7 @@ int main(int argc, char* argv[])
 
 		// Main calculation loop
 		for (int t = 1; t < timesteps; t++){
-			cout << t << "/" << timesteps-1 << endl;
+			// cout << t << "/" << timesteps-1 << endl;
 			solver.twoD_Explicit(N, u, u_new, alpha); // Triple loop
 			solver.WriteToFile2D(outfile, t,  u,  N, Time, dt, dx);
 		}

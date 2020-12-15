@@ -51,7 +51,7 @@ def max_diff(x,t,u, dx):
     plt.legend(loc = "best", fontsize = 13)
     plt.tight_layout(pad=1.1, w_pad=0.7, h_pad=0.2)
 
-    # fig1 = plt.figure(num=1, dpi=80, facecolor='w', edgecolor='k')
+
     plt.subplot(212)
     plt.plot(t, diff_depth_evo/1e3)
     plt.plot(t[peak_diff_idx], diff_depth_evo[peak_diff_idx]/1e3, "o", color = peak_point[0].get_color(), label = "Peak:    z    = %.2f km \n         Time = %.2f My" %(diff_depth_evo[peak_diff_idx]/1e3,t[peak_diff_idx]))
@@ -62,9 +62,23 @@ def max_diff(x,t,u, dx):
     plt.legend(loc = "best", fontsize = 13)
     plt.tight_layout(pad=1.1, w_pad=0.7, h_pad=0.2)
 
+    fig1 = plt.figure(num=1, dpi=80, facecolor='w', edgecolor='k')
+    z = np.linspace(0,dx*len(u[0])-1, len(u[0]))
+    plt.plot(z/1e3, np.abs(u[0] - u[-1]), label = "Time = 1000 My")
+    plt.xlabel("z [km]", fontsize = 14)
+    plt.ylabel("$\Delta$T [$^{\circ}$C]",fontsize = 14)
+    plt.legend(loc = "best", fontsize = 13)
+    plt.tight_layout(pad=1.1, w_pad=0.7, h_pad=0.2)
 
-    plt.savefig("../../article/figures/DeltaT.pdf", bbox_inches="tight")
+    # print(np.abs(u[0] - u[-1]))
+    for z,T in zip(z,np.abs(u[0] - u[-1])):
+        print(f"z = {z/1e3:.1f},   T= {T:.3f}")
+        if z > 20000:
+            break
+        # print(a/1e3, b)
 
+    # fig0.savefig("../../article/figures/DeltaT.pdf", bbox_inches="tight")
+    # fig1.savefig("../../article/figures/DeltaT_Last.pdf", bbox_inches="tight")
 
 
 

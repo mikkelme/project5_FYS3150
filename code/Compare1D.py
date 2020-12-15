@@ -1,5 +1,6 @@
 from dump_reader import *
 from analytic_solution import *
+from matplotlib import ticker
 import os
 
 
@@ -41,7 +42,7 @@ def Error_compare(folder):
     filenames = [f for f in os.listdir(folder) if f != ".DS_Store" if f != "auto_runner.py"]
 
     t1 = 0.1
-    t2 = 0.2
+    t2 = 0.5
 
     U01 = []    #dx = 0.1
     method01 = [] #order of method
@@ -80,7 +81,7 @@ def Error_compare(folder):
     for i in range(len(U01)):
         plott1 = plt.plot(x01, U01[i,t1_idx], linestyle = linestyle[i], marker = marker, markersize = markersize, label = method01[i])
         plt.plot(x01, U01[i,t2_idx], linestyle = linestyle[i], marker = marker, markersize = markersize, color = plott1[0].get_color())
-    plt.ylabel("$u$",fontsize = 14)
+    plt.ylabel("u",fontsize = 14)
 
     plt.subplot(212)
     plt.title("dx = 0.01")
@@ -93,7 +94,7 @@ def Error_compare(folder):
         plott1 = plt.plot(x001, U001[i,t1_idx], linestyle = linestyle[i], marker = marker, markersize = markersize, label = method001[i])
         plt.plot(x001, U001[i,t_2idx], linestyle = linestyle[i], marker = marker, markersize = markersize, color = plott1[0].get_color())
         plt.legend(loc = "best", fontsize = 13)
-    plt.ylabel("$u$", fontsize = 14)
+    plt.ylabel("u", fontsize = 14)
     plt.xlabel("x", fontsize = 14)
     plt.tight_layout(pad=1.1, w_pad=0.7, h_pad=0.2)
 
@@ -134,51 +135,89 @@ def Error_compare(folder):
 
 
     fig0.savefig("../article/figures/compare_show.pdf", bbox_inches="tight")
-    fig1.savefig("../article/figures/compare_error.pdf", bbox_inches="tight")
+    # fig1.savefig("../article/figures/compare_error.pdf", bbox_inches="tight")
     plt.show()
 
 
 
 
-def Error_compare_dt(folder):
-    filenames = [f for f in os.listdir(folder) if f != ".DS_Store" if f != "auto_runner.py"]
+def Error_compare_dt(folder1, folder2):
 
-    t1 = 0.1
-    data = [[], [], []]
+    folder_list = [folder1, folder2]
+    plt.figure(num=None, figsize=(10, 6), dpi=80, facecolor='w', edgecolor='k')
+    for num_folder in range(2):
+        folder = folder_list[num_folder]
+        filenames = [f for f in os.listdir(folder) if f != ".DS_Store" if f != "auto_runner.py"]
+        print("folder start")
+        t1 = 0.1
+        t2 = 0.5
+        data1 = [[], [], []]
+        data2 = [[], [], []]
+
+        method = np.array(["Explicit", "Implicit", "CN"])
+        colorcycle = plt.rcParams['axes.prop_cycle'].by_key()['color']
+        for filename in filenames:
+            x, t, u, dx, dt, Time, N = read_dump(folder + "/" + filename)
+            t1_idx = np.argmin(np.abs(t - t1))
+            t2_idx = np.argmin(np.abs(t - t2))
+
+            u_ana1 = OneDim_analytic(x, [t[t1_idx]], L=1)
+            u_ana2 = OneDim_analytic(x, [t[t1_idx]], L=1)
+
+            method_idx = np.argwhere(np.array(["E", "I", "C"]) == filename.split("D")[1][0])[0][0]
+            err1 = np.mean(np.abs((u[t1_idx,1:] - u_ana1[0,1:])/u_ana1[0,1:]))
+            err2 = np.mean(np.abs((u[t2_idx,1:] - u_ana2[0,1:])/u_ana2[0,1:]))
+
+            data1[method_idx].append([dt, err1])
+            data2[method_idx].append([dt, err2])
 
 
-    method = np.array(["Explicit", "Implicit", "CN"])
-    colorcycle = plt.rcParams['axes.prop_cycle'].by_key()['color']
-    for filename in filenames:
-        x, t, u, dx, dt, Time, N = read_dump(folder + "/" + filename)
-        t_idx = np.argmin(np.abs(t - t1))
-        u_ana = OneDim_analytic(x, [t[t_idx]], L=1)
+        data1 = np.array(data1)
+        idx1 = np.argsort(data1[:,:,0], axis = 1)
 
-        # plt.plot(x,u[t_idx], label = "numerisk")
-        # plt.plot(x,u_ana[0], label = "analytical")
-        # plt.legend()
-        # plt.show()
-        # exit()
-        print(filename)
-        method_idx = np.argwhere(np.array(["E", "I", "C"]) == filename.split("D")[1][0])[0][0]
-        err = np.mean(np.abs(u[t_idx,1:] - u_ana[0,1:])/u_ana[0,1:])
-        data[method_idx].append([dt, err])
+        data2 = np.array(data2)
+        idx2 = np.argsort(data2[:,:,0], axis = 1)
 
 
+        plt.subplot(2,2,1 + 2*num_folder)
+        plt.title(f"dx = {dx:.2f}, t = {t1}")
+        for i in range(3):
+            plt.plot(data1[i,idx1[i],0], data1[i,idx1[i],1], "-o", color = colorcycle[i], label = method[i])
+        plt.xscale("log")
+        plt.yscale("log")
+        ylim = [[0.0021910321188153745, 1.19866922541208*10], [1.9895381704176857e-05, 1.656899954324948*10]]
+        plt.ylim(ylim[num_folder])
+        # ax = plt.gca()
+        # ax.set_xticks([5e-6, 5e-5, 5e-4, 5e-3, 5e-2, 5e-1])
+        # formatter = ticker.ScalarFormatter()
+        # formatter.set_scientific(True)
+        # ax.get_xaxis().set_major_formatter(formatter)
+        if num_folder == 0: plt.legend(loc = "best", fontsize = 13)
+        plt.xlabel("dt", fontsize = 14)
+        plt.ylabel("Relative Error", fontsize = 14)
+        plt.tight_layout(pad=1.1, w_pad=0.7, h_pad=0.2)
 
-    data = np.array(data)
-    idx = np.argsort(data[:,:,0], axis = 1)
+        plt.subplot(2,2,2 + 2*num_folder)
+        plt.title(f"dx = {dx:.2f}, t = {t2}")
+        for i in range(3):
+            plt.plot(data2[i,idx2[i],0], data2[i,idx2[i],1], "-o", color = colorcycle[i], label = method[i])
+        plt.xscale("log")
+        plt.yscale("log")
+        ylim = [[0.6899785503197357, 212.40733768357993*10], [0.7722221330827425, 226.81143670207234*10]]
+        plt.ylim(ylim[num_folder])
+        # ax = plt.gca()
+        # ax.set_xticks([5e-6, 5e-5, 5e-4, 5e-3, 5e-2, 5e-1])
+        # formatter = ticker.ScalarFormatter()
+        # formatter.set_scientific(True)
+        # formatter.set_powerlimits((-1,1))
+        # ax.get_xaxis().set_major_formatter(formatter)
+        plt.xlabel("dt", fontsize = 14)
+        plt.ylabel("Relative Error", fontsize = 14)
+        plt.tight_layout(pad=1.1, w_pad=0.7, h_pad=0.2)
 
-    for i in range(len(data)):
-        plt.plot(data[i,idx[i],0], data[i,idx[i],1], "-o", color = colorcycle[i], label = method[i])
-    plt.xscale("log")
-    plt.yscale("log")
-    # plt.xticks([5e-7, 5e-6, 5e-5, 5e-4, 5e-3, 5e-2, 5e-1])
-    plt.legend(loc = "best", fontsize = 13)
-    plt.xlabel("dt", fontsize = 14)
-    plt.ylabel("Relative Error", fontsize = 14)
-    plt.tight_layout(pad=1.1, w_pad=0.7, h_pad=0.2)
-    plt.savefig("../article/figures/compare_error_dt.pdf", bbox_inches="tight")
+
+
+    # plt.savefig("../article/figures/1D_compare.pdf", bbox_inches="tight")
 
     plt.show()
 
@@ -197,9 +236,9 @@ if __name__ == "__main__":
     #             "1DExplicit0.01.txt", "1DImplicit0.01.txt", "1DCN0.01.txt"]
 
 
-    # Error_compare("error_compare2")
+    Error_compare("error_compare2")
 
-    Error_compare_dt("error_plot_data2")
+    # Error_compare_dt("error_plot_data0.1", "error_plot_data0.01")
 
 
 
