@@ -21,7 +21,7 @@ double Q(double z, double L, double alpha_const){
 	else if (z*L <= 40e3)	{ Q = 0.35; }
 	else if (z*L <= 120e3){ Q = 0.05; }
 	else {
-		cout << "input z for function Q(z) were out of range 0-120" << endl;
+		cout << "input z for function Q(z) were out of range 0-120 km" << endl;
 		exit(1);
 	}
 	// return 0;
@@ -35,7 +35,6 @@ double Q_rad(double z, double t, double L, double alpha_const){
 	double T2 = 14.0*1e3; //My
 	double T3 = 1.25*1e3; //My
 	double intensity = 0.4*pow(0.5, t/T1) + 0.4*pow(0.5, t/T2) + 0.2*pow(0.5, t/T3);
-	// double intensity = 1.0;
 
 	return Q_rad*1e-6*(L*L)/alpha_const*intensity;
 }
@@ -59,26 +58,21 @@ int main(int argc, char* argv[])
 	double dz = atof(argv[1])*1e3/L; // [km]
 	double Time = atof(argv[2])*year_to_sec*1e6*alpha_const/(L*L); // [Gy]
 	int N = 1/dz - 1;
-	double dt = 0.5*dz*dz; // Stability condition for Forward Euler, Explicit
-	double alpha = dt/(dz*dz); // dt/(dz*dz)
+	double dt = 0.5*dz*dz; // Stability condition for explicit
+	double alpha = dt/(dz*dz);
 	int timesteps = int(Time/dt) + 1;
-
-
 
 	// Initial conditons
 	double Ta = 8; 		// [°C]
 	double Tb = 1300; // [°C]
 
-
-
 	Solver solver; // Initializes Solver class
 
-	//Read initial state
 
 
 	// Intialize 1D solution vectors
-	// vec v = zeros<vec>(N+2);
-	vec v = solver.ReadState("SteadyState_BR.txt", L, dz, N);
+	vec v = zeros<vec>(N+2);
+	// vec v = solver.ReadState("SteadyState_BR.txt", L, dz, N);
 	vec v_new = zeros<vec>(N+2);
 	vec Q_vec = zeros<vec>(N+2);
 
@@ -89,8 +83,6 @@ int main(int argc, char* argv[])
 		v[i] += f(z, Ta, Tb ,L); // Add f(x)
 		Q_vec[i] = Q(z, L, alpha_const);
 	}
-
-
 
 
 	// Open output file
@@ -108,8 +100,6 @@ int main(int argc, char* argv[])
 		solver.WriteToFile(outfile, t, v, N, Time, dt, dz, f, L, alpha_const, Ta, Tb);
 	}
 	// solver.WriteLastState("SteadyState_BR.txt", v, N, dz, f , L, alpha_const, Ta, Tb);
-
-
 
 
 

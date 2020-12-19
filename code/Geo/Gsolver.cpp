@@ -16,7 +16,6 @@ void Solver::Forward_Sub(int N, vec &a, vec &b, vec &c, vec &g){
 }
 
 void Solver::Backward_Sub(int N, vec &b, vec &c, vec &g, vec &v){
-	//v[0] = v[N+1] = 0;
 	v[N+1] = g[N+1]/b[N+1];
 	for (int i = N+1; i > 0; i--){
 		v[i] = (g[i] - c[i]*v[i+1])/b[i];
@@ -24,7 +23,6 @@ void Solver::Backward_Sub(int N, vec &b, vec &c, vec &g, vec &v){
 }
 
 void Solver::Explicit(int N, vec &v, vec &v_new, double alpha){
-
 		for (int i = 1; i < N+1; i++){
 			v_new[i] = alpha*v[i-1] + (1-2*alpha)*v[i]+alpha*v[i+1];
 		}
@@ -42,7 +40,6 @@ void Solver::Add_Q(double t, vec &v, vec &Q_vec, double Q_rad (double, double, d
 
 
 void Solver::Implicit(int N, vec &v, vec &v_new, double alpha){
-
 	vec a = zeros<vec>(N+2);
 	vec b = zeros<vec>(N+2);
 	vec c = zeros<vec>(N+2);

@@ -11,6 +11,7 @@ using namespace arma;
 #pragma GCC diagnostic ignored "-Wunused-value"
 
 
+// Steady state function
 double f(double x, double L){
 	return -x/L;
 }
@@ -21,9 +22,9 @@ int main(int argc, char* argv[])
 	double x,y;
 
 
-	double dx = 0.01;
-	double dt = atof(argv[1]);
-	// double dx = atof(argv[1]);
+	// double dx = 0.01;
+	// double dt = atof(argv[1]);
+	double dx = atof(argv[1]);
 	double Time = atof(argv[2]);
 
 	Solver solver; // Initializes Solver class
@@ -31,7 +32,7 @@ int main(int argc, char* argv[])
 
 	double L = 1;
 	int N = L/dx - 1;
-	// double dt = 0.5*dx*dx/dim; // Stability condition for Forward Euler, Explicit
+	double dt = 0.5*dx*dx/dim; // Stability condition for explicit
 	double alpha = dt/(dx*dx);
 	int timesteps = int(Time/dt) + 1;
 
@@ -55,17 +56,16 @@ int main(int argc, char* argv[])
 
 		// Main calculation loop
 		for (int t = 1; t < timesteps; t++){
-			// solver.Explicit(N, v, v_new, alpha); 					// Double loop
+			solver.Explicit(N, v, v_new, alpha); 						// Double loop
 			// solver.Implicit(N, v, v_new, alpha); 				// Tridiagonal
-			solver.Crank_Nicolson(N, v, v_new, alpha); 	// Tridiagonal
+			// solver.Crank_Nicolson(N, v, v_new, alpha); 	// Tridiagonal
 			solver.WriteToFile1D(outfile, t, v, N, Time, dt, dx, f, L);
 		}
 	}
 
 
-	if (dim == 2){ //One dimensional problem
+	if (dim == 2){ //Two dimensional problem
 		// Intialize 2D solution vectors
-
 		mat u = zeros<mat>(N+2,N+2);
 		mat u_new = zeros<mat>(N+2,N+2);
 
@@ -88,7 +88,6 @@ int main(int argc, char* argv[])
 
 		// Main calculation loop
 		for (int t = 1; t < timesteps; t++){
-			// cout << t << "/" << timesteps-1 << endl;
 			solver.twoD_Explicit(N, u, u_new, alpha); // Triple loop
 			solver.WriteToFile2D(outfile, t,  u,  N, Time, dt, dx);
 		}

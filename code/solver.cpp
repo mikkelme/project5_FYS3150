@@ -16,7 +16,6 @@ void Solver::Forward_Sub(int N, vec &a, vec &b, vec &c, vec &g){
 }
 
 void Solver::Backward_Sub(int N, vec &b, vec &c, vec &g, vec &v){
-	//v[0] = v[N+1] = 0;
 	v[N+1] = g[N+1]/b[N+1];
 	for (int i = N+1; i > 0; i--){
 		v[i] = (g[i] - c[i]*v[i+1])/b[i];
@@ -49,8 +48,6 @@ void Solver::Explicit(int N, vec &v, vec &v_new, double alpha){
 			v_new[i] = alpha*v[i-1] + (1-2*alpha)*v[i]+alpha*v[i+1];
 		}
 		v = v_new;
-
-
 }
 
 
@@ -60,15 +57,11 @@ void Solver::Implicit(int N, vec &v, vec &v_new, double alpha){
 	vec b = zeros<vec>(N+2);
 	vec c = zeros<vec>(N+2);
 
-	// a[0] = c[0] = -alpha; b[0] = 1+2*alpha;
 	for (int i = 0; i < N+2; i++){
 		a[i] = c[i] = -alpha;
 		b[i] = 1+2*alpha;
 	}
-	// a[N+1] = c[N+1] = -alpha; b[N+1] = 1+2*alpha;
 
-	// Forward_Sub(N, a, b, c, v);
-	// Backward_Sub(N, b, c, v, v_new);
 	tridag(N, a, b, c, v, v_new);
 
 	v = v_new;
@@ -93,8 +86,6 @@ void Solver::Crank_Nicolson(int N, vec &v, vec &v_old, double alpha){
 		v_old[i] = alpha*v[i-1] + (2-2*alpha)*v[i]+alpha*v[i+1];
 	}
 
-	// Forward_Sub(N, a, b, c, v_old);
-	// Backward_Sub(N, b, c, v_old, v);
 	tridag(N, a, b, c, v_old, v);
 }
 
@@ -129,8 +120,6 @@ void Solver::WriteToFile1D(string outfile, int t, vec &v, int N, double Time, do
 		u[i] = v[i] - func(i*dx, L);
 		ofile << setw(15) << setprecision(8) << u[i] << endl;
 	}
-
-
 
 	ofile.close();
 }

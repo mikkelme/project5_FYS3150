@@ -5,7 +5,6 @@
 using namespace std;
 using namespace arma;
 
-//#include "constants.h" // For geoscinece part later
 
 #include <string>
 
